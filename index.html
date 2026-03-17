@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Treningskonkurranse</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --bg2: #111118;
+    --bg3: #18181f;
+    --border: rgba(255,255,255,.07);
+    --p1: #4f9eff;
+    --p2: #ff6b35;
+    --p1dim: rgba(79,158,255,.15);
+    --p2dim: rgba(255,107,53,.15);
+    --text: #f0f0f5;
+    --muted: rgba(240,240,245,.45);
+    --accent: #4f9eff;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Barlow', sans-serif;
+    font-weight: 300;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* GRID BG */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image:
+      linear-gradient(rgba(79,158,255,.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(79,158,255,.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container { max-width: 1100px; margin: 0 auto; padding: 0 24px; position: relative; z-index: 1; }
+
+  /* HEADER */
+  header {
+    padding: 28px 0 20px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 32px;
+  }
+  .header-inner { display: flex; align-items: flex-end; justify-content: space-between; flex-wrap: wrap; gap: 16px; }
+  .brand { display: flex; align-items: baseline; gap: 12px; }
+  .brand-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 800;
+    font-size: 28px;
+    letter-spacing: -.5px;
+    text-transform: uppercase;
+  }
+  .brand-vs {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 600;
+    font-size: 13px;
+    letter-spacing: .15em;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+  .header-date { font-size: 12px; color: var(--muted); letter-spacing: .05em; }
+
+  /* HERO SCORES */
+  .hero {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 0;
+    margin-bottom: 32px;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+  }
+  .hero-player {
+    padding: 28px 32px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .hero-player.p2 { text-align: right; }
+  .hero-name {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 13px;
+    letter-spacing: .15em;
+    text-transform: uppercase;
+  }
+  .hero-name.p1 { color: var(--p1); }
+  .hero-name.p2 { color: var(--p2); }
+  .hero-score {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 800;
+    font-size: 56px;
+    line-height: 1;
+    letter-spacing: -2px;
+  }
+  .hero-score.p1 { color: var(--p1); }
+  .hero-score.p2 { color: var(--p2); }
+  .hero-sub { font-size: 12px; color: var(--muted); }
+  .hero-mid {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 0 24px;
+    border-left: 1px solid var(--border);
+    border-right: 1px solid var(--border);
+    gap: 4px;
+  }
+  .hero-vs {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 800;
+    font-size: 22px;
+    color: var(--muted);
+    letter-spacing: .1em;
+  }
+  .hero-diff { font-size: 11px; color: var(--muted); letter-spacing: .08em; text-align: center; }
+  .hero-diff b { color: var(--text); font-weight: 500; }
+  .hero-lead-badge {
+    margin-top: 6px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+  }
+
+  /* ALGO BAR */
+  .algo-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 32px;
+    padding: 14px 16px;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    align-items: center;
+  }
+  .algo-label { font-size: 11px; color: var(--muted); letter-spacing: .08em; text-transform: uppercase; margin-right: 4px; }
+  .algo-pill {
+    padding: 3px 10px;
+    border-radius: 20px;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    font-size: 11px;
+    color: var(--text);
+    white-space: nowrap;
+  }
+  .algo-pill b { color: var(--accent); font-weight: 500; }
+
+  /* TABS */
+  .tabs { display: flex; gap: 2px; margin-bottom: 24px; background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; padding: 4px; width: fit-content; }
+  .tab-btn {
+    padding: 7px 18px;
+    border: none;
+    border-radius: 7px;
+    background: transparent;
+    color: var(--muted);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 600;
+    font-size: 14px;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all .2s;
+  }
+  .tab-btn.active { background: var(--bg3); color: var(--text); border: 1px solid var(--border); }
+
+  /* GRID */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+  .grid-full { margin-bottom: 20px; }
+
+  /* CHART CARD */
+  .chart-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 22px 24px 18px;
+  }
+  .chart-card-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 12px;
+    letter-spacing: .15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .legend { display: flex; gap: 14px; font-size: 11px; }
+  .leg { display: flex; align-items: center; gap: 5px; color: var(--muted); }
+  .leg-sq { width: 8px; height: 8px; border-radius: 2px; }
+  .cw { position: relative; width: 100%; height: 220px; }
+  .cw-tall { position: relative; width: 100%; height: 280px; }
+
+  /* ACTIVITY SELECTOR */
+  .act-pills { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
+  .act-pill {
+    padding: 5px 14px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    font-size: 12px;
+    cursor: pointer;
+    transition: all .15s;
+    font-family: 'Barlow', sans-serif;
+  }
+  .act-pill:hover { border-color: rgba(255,255,255,.2); color: var(--text); }
+  .act-pill.on { border-color: var(--accent); color: var(--accent); background: rgba(79,158,255,.08); }
+
+  /* WEEK STATS */
+  .week-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+  }
+  .week-row:last-child { border-bottom: none; }
+  .week-label { width: 70px; color: var(--muted); font-size: 12px; flex-shrink: 0; }
+  .week-bar-wrap { flex: 1; display: flex; flex-direction: column; gap: 4px; }
+  .week-bar-row { display: flex; align-items: center; gap: 8px; }
+  .week-bar-bg { flex: 1; height: 6px; background: var(--bg3); border-radius: 3px; overflow: hidden; }
+  .week-bar-fill { height: 100%; border-radius: 3px; transition: width .4s ease; }
+  .week-bar-val { font-size: 11px; min-width: 30px; text-align: right; }
+
+  /* LOG FORM */
+  .form-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 24px;
+    margin-bottom: 20px;
+  }
+  .form-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 16px;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+    color: var(--text);
+  }
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+  .form-full { grid-column: 1 / -1; }
+  .fg { display: flex; flex-direction: column; gap: 5px; }
+  .fg label { font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+  .fg input, .fg select {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: 'Barlow', sans-serif;
+    font-size: 14px;
+    padding: 9px 12px;
+    transition: border-color .15s;
+    outline: none;
+    -webkit-appearance: none;
+  }
+  .fg input:focus, .fg select:focus { border-color: var(--accent); }
+  .fg select option { background: var(--bg3); }
+  .form-preview {
+    text-align: center;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--accent);
+    min-height: 28px;
+    margin-bottom: 12px;
+    letter-spacing: .05em;
+  }
+  .submit-btn {
+    width: 100%;
+    padding: 13px;
+    background: var(--p1);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 15px;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: opacity .15s, transform .1s;
+  }
+  .submit-btn:hover { opacity: .88; }
+  .submit-btn:active { transform: scale(.98); }
+
+  /* RECENT LOG */
+  .log-entry {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+    animation: fadein .3s ease;
+  }
+  @keyframes fadein { from { opacity:0; transform: translateY(-6px); } to { opacity:1; transform: translateY(0); } }
+  .log-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .log-name { flex: 1; font-weight: 400; }
+  .log-date { color: var(--muted); font-size: 11px; }
+  .log-pts { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 15px; }
+  .log-pts.p1 { color: var(--p1); }
+  .log-pts.p2 { color: var(--p2); }
+
+  /* TABS CONTENT */
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  /* RESPONSIVE */
+  @media (max-width: 600px) {
+    .grid-2 { grid-template-columns: 1fr; }
+    .hero { grid-template-columns: 1fr auto 1fr; }
+    .hero-score { font-size: 38px; }
+    .hero-player { padding: 18px 16px; }
+    .form-grid { grid-template-columns: 1fr; }
+    .tabs { flex-wrap: wrap; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <div class="header-inner">
+      <div class="brand">
+        <div class="brand-title">Treningskonkurranse</div>
+        <div class="brand-vs">Deg vs Sølve</div>
+      </div>
+      <div class="header-date" id="hdate"></div>
+    </div>
+  </header>
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-player p1">
+      <div class="hero-name p1">Deg</div>
+      <div class="hero-score p1" id="hs1">0</div>
+      <div class="hero-sub">totalpoeng</div>
+    </div>
+    <div class="hero-mid">
+      <div class="hero-vs">VS</div>
+      <div class="hero-diff" id="hdiff"></div>
+      <div class="hero-lead-badge" id="hbadge"></div>
+    </div>
+    <div class="hero-player p2" style="align-items:flex-end">
+      <div class="hero-name p2">Sølve</div>
+      <div class="hero-score p2" id="hs2">0</div>
+      <div class="hero-sub">totalpoeng</div>
+    </div>
+  </div>
+
+  <!-- ALGO -->
+  <div class="algo-bar">
+    <span class="algo-label">Poeng:</span>
+    <span class="algo-pill">Løping <b>10p/km</b></span>
+    <span class="algo-pill">Svømming <b>20p/km</b></span>
+    <span class="algo-pill">Sykling <b>3p/km</b></span>
+    <span class="algo-pill">Pullups <b>1.5p</b></span>
+    <span class="algo-pill">Pushups <b>0.5p</b></span>
+    <span class="algo-pill">Situps <b>0.3p</b></span>
+    <span class="algo-pill">Vekttrening <b>0.8p/min</b></span>
+  </div>
+
+  <!-- TABS -->
+  <div class="tabs">
+    <button class="tab-btn active" onclick="goTab('oversikt',this)">Oversikt</button>
+    <button class="tab-btn" onclick="goTab('aktivitet',this)">Aktivitet</button>
+    <button class="tab-btn" onclick="goTab('uke',this)">Uke</button>
+    <button class="tab-btn" onclick="goTab('logg',this)">+ Logg økt</button>
+  </div>
+
+  <!-- TAB: OVERSIKT -->
+  <div class="tab-content active" id="t-oversikt">
+    <div class="grid-full chart-card">
+      <div class="chart-card-title">
+        <span>Kumulativ totalscore — dag for dag</span>
+        <div class="legend">
+          <span class="leg"><span class="leg-sq" style="background:var(--p1)"></span>Deg</span>
+          <span class="leg"><span class="leg-sq" style="background:var(--p2)"></span>Sølve</span>
+        </div>
+      </div>
+      <div class="cw-tall"><canvas id="cumulChart"></canvas></div>
+    </div>
+    <div class="grid-full chart-card" style="margin-top:20px">
+      <div class="chart-card-title">
+        <span>Daglig poeng</span>
+        <div class="legend">
+          <span class="leg"><span class="leg-sq" style="background:var(--p1)"></span>Deg</span>
+          <span class="leg"><span class="leg-sq" style="background:var(--p2)"></span>Sølve</span>
+        </div>
+      </div>
+      <div class="cw-tall"><canvas id="dailyChart"></canvas></div>
+    </div>
+  </div>
+
+  <!-- TAB: AKTIVITET -->
+  <div class="tab-content" id="t-aktivitet">
+    <div class="grid-full chart-card">
+      <div class="chart-card-title">Velg aktivitet</div>
+      <div class="act-pills" id="actPills"></div>
+      <div class="legend" style="margin-bottom:14px">
+        <span class="leg"><span class="leg-sq" style="background:var(--p1)"></span>Deg</span>
+        <span class="leg"><span class="leg-sq" style="background:var(--p2)"></span>Sølve</span>
+      </div>
+      <div class="cw-tall"><canvas id="actChart"></canvas></div>
+    </div>
+  </div>
+
+  <!-- TAB: UKE -->
+  <div class="tab-content" id="t-uke">
+    <div class="grid-2">
+      <div class="chart-card">
+        <div class="chart-card-title">Ukentlig poeng</div>
+        <div class="cw"><canvas id="weekChart"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-card-title">Uke-for-uke fordel</div>
+        <div id="weekRows"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB: LOGG -->
+  <div class="tab-content" id="t-logg">
+    <div class="form-card">
+      <div class="form-title">Logg ny økt</div>
+      <div class="form-grid">
+        <div class="fg form-full">
+          <label>Person</label>
+          <select id="fp">
+            <option value="p1">Deg (blå)</option>
+            <option value="p2">Sølve (oransje)</option>
+          </select>
+        </div>
+        <div class="fg form-full">
+          <label>Dato</label>
+          <input type="date" id="fd">
+        </div>
+        <div class="fg"><label>Løping (km)</label><input type="number" id="fr" placeholder="0" min="0" step="0.1"></div>
+        <div class="fg"><label>Sykling (km)</label><input type="number" id="fb" placeholder="0" min="0" step="0.1"></div>
+        <div class="fg"><label>Svømming (km)</label><input type="number" id="fs" placeholder="0" min="0" step="0.1"></div>
+        <div class="fg"><label>Pushups</label><input type="number" id="fpu" placeholder="0" min="0"></div>
+        <div class="fg"><label>Pullups</label><input type="number" id="fpl" placeholder="0" min="0"></div>
+        <div class="fg"><label>Situps</label><input type="number" id="fsi" placeholder="0" min="0"></div>
+        <div class="fg form-full"><label>Vekttrening (min)</label><input type="number" id="fv" placeholder="0" min="0"></div>
+      </div>
+      <div class="form-preview" id="fpreview"></div>
+      <button class="submit-btn" onclick="addEntry()">Legg til økt</button>
+    </div>
+
+    <div class="chart-card">
+      <div class="chart-card-title">Siste økter</div>
+      <div id="recentLog"></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const W = {run:10, bike:3, swim:20, push:.5, pull:1.5, sit:.3, weight:.8};
+function pts(e) {
+  return (e.run||0)*W.run + (e.bike||0)*W.bike + (e.swim||0)*W.swim +
+    (e.push||0)*W.push + (e.pull||0)*W.pull + (e.sit||0)*W.sit + (e.weight||0)*W.weight;
+}
+
+// --- DATA (pre-loaded from Notion) ---
+const BASE_DATA = [
+  {p:"p1",date:"2026-03-03",name:"Morgenløp",run:8,bike:0,swim:0,push:0,pull:0,sit:0,weight:0},
+  {p:"p1",date:"2026-03-04",name:"Styrke",run:0,bike:0,swim:0,push:80,pull:20,sit:60,weight:0},
+  {p:"p1",date:"2026-03-05",name:"Sykkeltur",run:0,bike:45,swim:0,push:0,pull:0,sit:0,weight:0},
+  {p:"p1",date:"2026-03-06",name:"Svømming",run:0,bike:0,swim:2,push:0,pull:0,sit:0,weight:0},
+  {p:"p1",date:"2026-03-07",name:"Intervaller",run:12,bike:0,swim:0,push:0,pull:0,sit:0,weight:0},
+  {p:"p1",date:"2026-03-08",name:"Vekttrening",run:0,bike:0,swim:0,push:100,pull:30,sit:0,weight:45},
+  {p:"p1",date:"2026-03-09",name:"Langtur",run:20,bike:0,swim:0,push:0,pull:0,sit:0,weight:0},
+  {p:"p1",date:"2026-03-10",name:"Rolig løp",run:6,bike:0,swim:0,push:0,pull:0,sit:0,weight:0},
+  {p:"p1",date:"2026-03-11",name:"Styrke",run:0,bike:0,swim:0,push:90,pull:25,sit:80,weight:0},
+  {p:"p1",date:"2026-03-12",name:"Sykling hard",run:0,bike:60,swim:0,push:0,pull:0,sit:0,weight:0},
+  {p:"p1",date:"2026-03-13",name:"Svømming",run:0,bike:0,swim:3,push:0,pull:0,sit:0,weight:0},
+  {p:"p1",date:"2026-03-14",name:"Terskelintervall",run:14,bike:0,swim:0,push:0,pull:0,sit:0,weight:0},
+  {p:"p1",date:"2026-03-15",name:"Full styrke",run:0,bike:0,swim:0,push:120,pull:35,sit:100,weight:60},
+  {p:"p1",date:"2026-03-16",name:"Søndagsløp",run:10,bike:0,swim:0,push:0,pull:0,sit:0,weight:0},
+  {p:"p2",date:"2026-03-03",name:"Morgenløp",run:5,bike:0,swim:0,push:0,pull:0,sit:0,weight:0},
+  {p:"p2",date:"2026-03-04",name:"Sykkeltur",run:0,bike:30,swim:0,push:0,pull:0,sit:0,weight:0},
+  {p:"p2",date:"2026-03-05",name:"Styrke",run:0,bike:0,swim:0,push:60,pull:15,sit:50,weight:0},
+  {p:"p2",date:"2026-03-06",name:"Løp",run:10,bike:0,swim:0,push:0,pull:0,sit:0,weight:0},
+  {p:"p2",date:"2026-03-07",name:"Svømming",run:0,bike:0,swim:1.5,push:0,pull:0,sit:0,weight:0},
+  {p:"p2",date:"2026-03-08",name:"Vekttrening",run:0,bike:0,swim:0,push:70,pull:0,sit:0,weight:60},
+  {p:"p2",date:"2026-03-09",name:"Lang sykkel",run:0,bike:80,swim:0,push:0,pull:0,sit:0,weight:0},
+  {p:"p2",date:"2026-03-10",name:"Rolig løp",run:7,bike:0,swim:0,push:0,pull:0,sit:0,weight:0},
+  {p:"p2",date:"2026-03-11",name:"Styrke",run:0,bike:0,swim:0,push:80,pull:20,sit:70,weight:0},
+  {p:"p2",date:"2026-03-12",name:"Intervaller",run:11,bike:0,swim:0,push:0,pull:0,sit:0,weight:0},
+  {p:"p2",date:"2026-03-13",name:"Svømming",run:0,bike:0,swim:2,push:0,pull:0,sit:0,weight:0},
+  {p:"p2",date:"2026-03-14",name:"Sykling",run:0,bike:50,swim:0,push:0,pull:0,sit:0,weight:0},
+  {p:"p2",date:"2026-03-15",name:"Langtur",run:18,bike:0,swim:0,push:0,pull:0,sit:0,weight:0},
+  {p:"p2",date:"2026-03-16",name:"Styrke",run:0,bike:0,swim:0,push:100,pull:30,sit:80,weight:45},
+];
+
+// Load from localStorage + merge with base
+function loadData() {
+  try {
+    const saved = JSON.parse(localStorage.getItem('treningsdata') || '[]');
+    return [...BASE_DATA, ...saved].sort((a,b) => a.date.localeCompare(b.date));
+  } catch(e) { return [...BASE_DATA]; }
+}
+function saveExtra(entry) {
+  try {
+    const saved = JSON.parse(localStorage.getItem('treningsdata') || '[]');
+    saved.push(entry);
+    localStorage.setItem('treningsdata', JSON.stringify(saved));
+  } catch(e) {}
+}
+
+let data = loadData();
+const charts = {};
+
+function getDateRange() {
+  const dates = data.map(d => d.date).sort();
+  const start = new Date(dates[0]), end = new Date(dates[dates.length-1]);
+  const days = [];
+  for (let d = new Date(start); d <= end; d.setDate(d.getDate()+1))
+    days.push(d.toISOString().slice(0,10));
+  return days;
+}
+
+function fmtDate(s) {
+  const d = new Date(s + 'T00:00:00');
+  return d.toLocaleDateString('nb-NO', {day:'2-digit', month:'short'});
+}
+
+function getWeek(dateStr) {
+  const d = new Date(dateStr + 'T00:00:00');
+  d.setDate(d.getDate() + 3 - (d.getDay() + 6) % 7);
+  const w1 = new Date(d.getFullYear(), 0, 4);
+  return 'Uke ' + (1 + Math.round(((d - w1) / 86400000 - 3 + (w1.getDay() + 6) % 7) / 7));
+}
+
+const GC = 'rgba(255,255,255,.05)';
+const TC = 'rgba(255,255,255,.35)';
+
+function mkChart(id, cfg) {
+  if (charts[id]) charts[id].destroy();
+  charts[id] = new Chart(document.getElementById(id), cfg);
+}
+
+const baseOpts = {
+  responsive: true,
+  maintainAspectRatio: false,
+  interaction: { mode: 'index', intersect: false },
+  plugins: {
+    legend: { display: false },
+    tooltip: {
+      backgroundColor: 'rgba(10,10,15,.95)',
+      borderColor: 'rgba(255,255,255,.1)',
+      borderWidth: 1,
+      titleColor: 'rgba(255,255,255,.7)',
+      bodyColor: '#fff',
+      padding: 10,
+    }
+  },
+  scales: {
+    x: {
+      grid: { color: GC },
+      ticks: { color: TC, font: { size: 10, family: 'Barlow Condensed' }, maxRotation: 45, autoSkip: false }
+    },
+    y: {
+      grid: { color: GC },
+      ticks: { color: TC, font: { size: 10 } },
+      beginAtZero: true
+    }
+  }
+};
+
+function deepMerge(a, b) {
+  const r = {...a};
+  for (const k in b) {
+    if (b[k] && typeof b[k] === 'object' && !Array.isArray(b[k])) r[k] = deepMerge(a[k]||{}, b[k]);
+    else r[k] = b[k];
+  }
+  return r;
+}
+
+// CUMULATIVE CHART
+function renderCumul() {
+  const days = getDateRange();
+  const lbls = days.map(fmtDate);
+  let c1=0, c2=0;
+  const s1=[], s2=[];
+  days.forEach(day => {
+    data.filter(e=>e.date===day&&e.p==='p1').forEach(e=>c1+=pts(e));
+    data.filter(e=>e.date===day&&e.p==='p2').forEach(e=>c2+=pts(e));
+    s1.push(Math.round(c1));
+    s2.push(Math.round(c2));
+  });
+  mkChart('cumulChart', {
+    type: 'line',
+    data: { labels: lbls, datasets: [
+      {label:'Deg', data:s1, borderColor:'#4f9eff', backgroundColor:'rgba(79,158,255,.08)', borderWidth:2.5, pointRadius:3, pointHoverRadius:6, pointBackgroundColor:'#4f9eff', tension:.35, fill:true},
+      {label:'Sølve', data:s2, borderColor:'#ff6b35', backgroundColor:'rgba(255,107,53,.08)', borderWidth:2.5, pointRadius:3, pointHoverRadius:6, pointBackgroundColor:'#ff6b35', tension:.35, fill:true},
+    ]},
+    options: deepMerge(baseOpts, {plugins:{tooltip:{callbacks:{label:c=>`  ${c.dataset.label}: ${c.parsed.y} poeng`}}}})
+  });
+}
+
+// DAILY CHART
+function renderDaily() {
+  const days = getDateRange();
+  const lbls = days.map(fmtDate);
+  const s1 = days.map(d => Math.round(data.filter(e=>e.date===d&&e.p==='p1').reduce((a,e)=>a+pts(e),0)));
+  const s2 = days.map(d => Math.round(data.filter(e=>e.date===d&&e.p==='p2').reduce((a,e)=>a+pts(e),0)));
+  mkChart('dailyChart', {
+    type: 'line',
+    data: { labels: lbls, datasets: [
+      {label:'Deg', data:s1, borderColor:'#4f9eff', backgroundColor:'rgba(79,158,255,.06)', borderWidth:2, pointRadius:4, pointHoverRadius:7, pointBackgroundColor:'#4f9eff', tension:.3, fill:true},
+      {label:'Sølve', data:s2, borderColor:'#ff6b35', backgroundColor:'rgba(255,107,53,.06)', borderWidth:2, pointRadius:4, pointHoverRadius:7, pointBackgroundColor:'#ff6b35', tension:.3, fill:true},
+    ]},
+    options: deepMerge(baseOpts, {plugins:{tooltip:{callbacks:{label:c=>c.parsed.y>0?`  ${c.dataset.label}: ${c.parsed.y} p`:null}}}})
+  });
+}
+
+// ACTIVITY CHART
+const ACT_DEFS = [
+  {key:'run', label:'Løping', unit:'km'},
+  {key:'bike', label:'Sykling', unit:'km'},
+  {key:'swim', label:'Svømming', unit:'km'},
+  {key:'push', label:'Pushups', unit:'rep'},
+  {key:'pull', label:'Pullups', unit:'rep'},
+  {key:'sit', label:'Situps', unit:'rep'},
+  {key:'weight', label:'Vekttrening', unit:'min'},
+];
+let currentAct = 'run';
+
+function renderActPills() {
+  const c = document.getElementById('actPills');
+  c.innerHTML = '';
+  ACT_DEFS.forEach(a => {
+    const el = document.createElement('button');
+    el.className = 'act-pill' + (a.key===currentAct?' on':'');
+    el.textContent = a.label;
+    el.onclick = () => { currentAct=a.key; renderActPills(); renderActChart(); };
+    c.appendChild(el);
+  });
+}
+
+function renderActChart() {
+  const days = getDateRange();
+  const lbls = days.map(fmtDate);
+  const def = ACT_DEFS.find(a=>a.key===currentAct);
+  const s1 = days.map(d => { const v=data.filter(e=>e.date===d&&e.p==='p1').reduce((a,e)=>a+(e[def.key]||0),0); return v||null; });
+  const s2 = days.map(d => { const v=data.filter(e=>e.date===d&&e.p==='p2').reduce((a,e)=>a+(e[def.key]||0),0); return v||null; });
+  mkChart('actChart', {
+    type: 'line',
+    data: { labels: lbls, datasets: [
+      {label:'Deg', data:s1, borderColor:'#4f9eff', backgroundColor:'rgba(79,158,255,.08)', borderWidth:2.5, pointRadius:5, pointHoverRadius:8, pointBackgroundColor:'#4f9eff', spanGaps:false, tension:.3, fill:true},
+      {label:'Sølve', data:s2, borderColor:'#ff6b35', backgroundColor:'rgba(255,107,53,.08)', borderWidth:2.5, pointRadius:5, pointHoverRadius:8, pointBackgroundColor:'#ff6b35', spanGaps:false, tension:.3, fill:true},
+    ]},
+    options: deepMerge(baseOpts, {plugins:{tooltip:{callbacks:{label:c=>c.parsed.y===null?null:`  ${c.dataset.label}: ${c.parsed.y} ${def.unit}`}}}})
+  });
+}
+
+// WEEKLY
+function renderWeek() {
+  const weeks = {};
+  data.forEach(e => {
+    const w = getWeek(e.date);
+    if (!weeks[w]) weeks[w] = {p1:0, p2:0};
+    weeks[w][e.p] += pts(e);
+  });
+  const wlbls = Object.keys(weeks).sort();
+
+  mkChart('weekChart', {
+    type: 'line',
+    data: { labels: wlbls, datasets: [
+      {label:'Deg', data:wlbls.map(w=>Math.round(weeks[w].p1)), borderColor:'#4f9eff', backgroundColor:'rgba(79,158,255,.08)', borderWidth:2.5, pointRadius:5, pointHoverRadius:8, pointBackgroundColor:'#4f9eff', tension:.3, fill:true},
+      {label:'Sølve', data:wlbls.map(w=>Math.round(weeks[w].p2)), borderColor:'#ff6b35', backgroundColor:'rgba(255,107,53,.08)', borderWidth:2.5, pointRadius:5, pointHoverRadius:8, pointBackgroundColor:'#ff6b35', tension:.3, fill:true},
+    ]},
+    options: deepMerge(baseOpts, {scales:{x:{ticks:{autoSkip:false,maxRotation:0}}}})
+  });
+
+  // Week rows
+  const wrap = document.getElementById('weekRows');
+  wrap.innerHTML = '';
+  const maxVal = Math.max(...wlbls.flatMap(w=>[weeks[w].p1,weeks[w].p2]));
+  wlbls.forEach(w => {
+    const v1=Math.round(weeks[w].p1), v2=Math.round(weeks[w].p2);
+    const winner = v1>v2?'p1':v2>v1?'p2':'tie';
+    const row = document.createElement('div');
+    row.className = 'week-row';
+    row.innerHTML = `
+      <div class="week-label">${w}</div>
+      <div class="week-bar-wrap">
+        <div class="week-bar-row">
+          <div class="week-bar-bg"><div class="week-bar-fill" style="width:${maxVal?v1/maxVal*100:0}%;background:#4f9eff"></div></div>
+          <div class="week-bar-val" style="color:#4f9eff">${v1}p</div>
+        </div>
+        <div class="week-bar-row">
+          <div class="week-bar-bg"><div class="week-bar-fill" style="width:${maxVal?v2/maxVal*100:0}%;background:#ff6b35"></div></div>
+          <div class="week-bar-val" style="color:#ff6b35">${v2}p</div>
+        </div>
+      </div>
+    `;
+    wrap.appendChild(row);
+  });
+}
+
+// HERO
+function updateHero() {
+  const tot1 = Math.round(data.filter(e=>e.p==='p1').reduce((a,e)=>a+pts(e),0));
+  const tot2 = Math.round(data.filter(e=>e.p==='p2').reduce((a,e)=>a+pts(e),0));
+  document.getElementById('hs1').textContent = tot1.toLocaleString('nb-NO');
+  document.getElementById('hs2').textContent = tot2.toLocaleString('nb-NO');
+  const diff = Math.abs(tot1-tot2);
+  const b = document.getElementById('hbadge');
+  const d = document.getElementById('hdiff');
+  if (tot1>tot2) {
+    d.innerHTML = `<b style="color:#4f9eff">+${diff}</b> poeng`;
+    b.textContent = 'Leder'; b.style.background='rgba(79,158,255,.15)'; b.style.color='#4f9eff'; b.style.border='1px solid rgba(79,158,255,.3)';
+  } else if (tot2>tot1) {
+    d.innerHTML = `<b style="color:#ff6b35">+${diff}</b> poeng`;
+    b.textContent = 'Leder'; b.style.background='rgba(255,107,53,.15)'; b.style.color='#ff6b35'; b.style.border='1px solid rgba(255,107,53,.3)';
+  } else {
+    d.innerHTML = 'Likt!';
+    b.textContent = 'Uavgjort'; b.style.background='rgba(255,255,255,.07)'; b.style.color='rgba(255,255,255,.5)'; b.style.border='1px solid rgba(255,255,255,.1)';
+  }
+}
+
+// RECENT LOG
+function renderRecent() {
+  const wrap = document.getElementById('recentLog');
+  const sorted = [...data].sort((a,b)=>b.date.localeCompare(a.date)).slice(0,10);
+  wrap.innerHTML = sorted.map(e => {
+    const p = Math.round(pts(e));
+    return `<div class="log-entry">
+      <div class="log-dot" style="background:${e.p==='p1'?'#4f9eff':'#ff6b35'}"></div>
+      <div class="log-name">${e.name||'Økt'}</div>
+      <div class="log-date">${fmtDate(e.date)}</div>
+      <div class="log-pts ${e.p}">${p}p</div>
+    </div>`;
+  }).join('');
+}
+
+// ADD ENTRY
+window.addEntry = function() {
+  const date = document.getElementById('fd').value;
+  if (!date) { alert('Velg en dato'); return; }
+  const entry = {
+    p: document.getElementById('fp').value,
+    date,
+    name: document.getElementById('fp').options[document.getElementById('fp').selectedIndex].text.split(' ')[0] + ' økt',
+    run: +document.getElementById('fr').value||0,
+    bike: +document.getElementById('fb').value||0,
+    swim: +document.getElementById('fs').value||0,
+    push: +document.getElementById('fpu').value||0,
+    pull: +document.getElementById('fpl').value||0,
+    sit: +document.getElementById('fsi').value||0,
+    weight: +document.getElementById('fv').value||0,
+  };
+  saveExtra(entry);
+  data = loadData();
+  renderAll();
+  ['fr','fb','fs','fpu','fpl','fsi','fv'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('fpreview').textContent = '';
+  goTab('oversikt', document.querySelector('.tab-btn'));
+};
+
+// PREVIEW
+['fr','fb','fs','fpu','fpl','fsi','fv'].forEach(id => {
+  document.getElementById(id)?.addEventListener('input', () => {
+    const p = pts({
+      run:+document.getElementById('fr').value||0,
+      bike:+document.getElementById('fb').value||0,
+      swim:+document.getElementById('fs').value||0,
+      push:+document.getElementById('fpu').value||0,
+      pull:+document.getElementById('fpl').value||0,
+      sit:+document.getElementById('fsi').value||0,
+      weight:+document.getElementById('fv').value||0,
+    });
+    document.getElementById('fpreview').textContent = p>0 ? `${Math.round(p)} poeng` : '';
+  });
+});
+
+// TABS
+window.goTab = function(id, btn) {
+  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('t-'+id).classList.add('active');
+  btn.classList.add('active');
+  if (id==='aktivitet') { renderActPills(); renderActChart(); }
+  if (id==='uke') renderWeek();
+};
+
+function renderAll() {
+  updateHero();
+  renderCumul();
+  renderDaily();
+  renderRecent();
+  if (document.getElementById('t-aktivitet').classList.contains('active')) { renderActPills(); renderActChart(); }
+  if (document.getElementById('t-uke').classList.contains('active')) renderWeek();
+}
+
+// INIT
+document.getElementById('fd').value = new Date().toISOString().slice(0,10);
+document.getElementById('hdate').textContent = new Date().toLocaleDateString('nb-NO', {weekday:'long', year:'numeric', month:'long', day:'numeric'});
+renderActPills();
+renderAll();
+</script>
+</body>
+</html>
