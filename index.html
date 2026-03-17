@@ -7,6 +7,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
 <style>
   :root { --bg:#0a0a0f; --bg2:#111118; --bg3:#18181f; --border:rgba(255,255,255,.07); --text:#f0f0f5; --muted:rgba(240,240,245,.45); --accent:#4f9eff; }
   * { box-sizing:border-box; margin:0; padding:0; }
@@ -227,7 +229,19 @@
 </div>
 
 <script>
-// --- ACTIVITIES (dynamic) ---
+// --- FIREBASE ---
+firebase.initializeApp({
+  apiKey:"AIzaSyDN-lWEsjUYVlN6jO9fEeaxKzgLo2PI5Po",
+  authDomain:"treningskonkurranse.firebaseapp.com",
+  databaseURL:"https://treningskonkurranse-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId:"treningskonkurranse",
+  storageBucket:"treningskonkurranse.firebasestorage.app",
+  messagingSenderId:"667059906306",
+  appId:"1:667059906306:web:180229979589558782841b"
+});
+const db = firebase.database();
+
+// --- ACTIVITIES (dynamic, synced) ---
 const DEFAULT_ACTIVITIES = [
   {key:'run',label:'Løping',unit:'km',pts:10},
   {key:'bike',label:'Sykling',unit:'km',pts:3},
@@ -240,12 +254,8 @@ const DEFAULT_ACTIVITIES = [
   {key:'healthy',label:'Sunn dag',unit:'stk',pts:10},
 ];
 
-function loadActivities() {
-  try { const s=localStorage.getItem('treningsactivities'); if(s) return JSON.parse(s); } catch(e){}
-  return DEFAULT_ACTIVITIES.map(a=>({...a}));
-}
-function saveActivities(a) { localStorage.setItem('treningsactivities',JSON.stringify(a)); }
-let activities = loadActivities();
+let activities = DEFAULT_ACTIVITIES.map(a=>({...a}));
+function saveActivities(a) { db.ref('activities').set(a); }
 
 function pts(e) {
   return activities.reduce((sum,a) => sum + (e[a.key]||0) * a.pts, 0);
@@ -263,58 +273,22 @@ const PALETTE = [
 ];
 function pal(i) { return PALETTE[i%PALETTE.length]; }
 
-// --- PLAYERS ---
+// --- PLAYERS (synced) ---
 const DEFAULT_PLAYERS = [{id:'p1',name:'Viktor'},{id:'p2',name:'Sølve'}];
-function loadPlayers() { try{const s=localStorage.getItem('treningsplayers');if(s)return JSON.parse(s);}catch(e){} return DEFAULT_PLAYERS.map(p=>({...p})); }
-function savePlayers(p) { localStorage.setItem('treningsplayers',JSON.stringify(p)); }
-let players = loadPlayers();
+let players = DEFAULT_PLAYERS.map(p=>({...p}));
+function savePlayers(p) { db.ref('players').set(p); }
 function getPlayerName(id) { return (players.find(p=>p.id===id)||{}).name||id; }
 function getPlayerIndex(id) { return players.findIndex(p=>p.id===id); }
 
-// --- DATA ---
-const BASE_DATA = [
-  {id:'b1',p:'p1',date:'2026-03-03',name:'Morgenløp',run:8},{id:'b2',p:'p1',date:'2026-03-04',name:'Styrke',push:80,pull:20,sit:60},
-  {id:'b3',p:'p1',date:'2026-03-05',name:'Sykkeltur',bike:45},{id:'b4',p:'p1',date:'2026-03-06',name:'Svømming',swim:2},
-  {id:'b5',p:'p1',date:'2026-03-07',name:'Intervaller',run:12},{id:'b6',p:'p1',date:'2026-03-08',name:'Vekttrening',push:100,pull:30,weight:45},
-  {id:'b7',p:'p1',date:'2026-03-09',name:'Langtur',run:20},{id:'b8',p:'p1',date:'2026-03-10',name:'Rolig løp',run:6},
-  {id:'b9',p:'p1',date:'2026-03-11',name:'Styrke',push:90,pull:25,sit:80},{id:'b10',p:'p1',date:'2026-03-12',name:'Sykling hard',bike:60},
-  {id:'b11',p:'p1',date:'2026-03-13',name:'Svømming',swim:3},{id:'b12',p:'p1',date:'2026-03-14',name:'Terskelintervall',run:14},
-  {id:'b13',p:'p1',date:'2026-03-15',name:'Full styrke',push:120,pull:35,sit:100,weight:60},{id:'b14',p:'p1',date:'2026-03-16',name:'Søndagsløp',run:10},
-  {id:'b15',p:'p2',date:'2026-03-03',name:'Morgenløp',run:5},{id:'b16',p:'p2',date:'2026-03-04',name:'Sykkeltur',bike:30},
-  {id:'b17',p:'p2',date:'2026-03-05',name:'Styrke',push:60,pull:15,sit:50},{id:'b18',p:'p2',date:'2026-03-06',name:'Løp',run:10},
-  {id:'b19',p:'p2',date:'2026-03-07',name:'Svømming',swim:1.5},{id:'b20',p:'p2',date:'2026-03-08',name:'Vekttrening',push:70,weight:60},
-  {id:'b21',p:'p2',date:'2026-03-09',name:'Lang sykkel',bike:80},{id:'b22',p:'p2',date:'2026-03-10',name:'Rolig løp',run:7},
-  {id:'b23',p:'p2',date:'2026-03-11',name:'Styrke',push:80,pull:20,sit:70},{id:'b24',p:'p2',date:'2026-03-12',name:'Intervaller',run:11},
-  {id:'b25',p:'p2',date:'2026-03-13',name:'Svømming',swim:2},{id:'b26',p:'p2',date:'2026-03-14',name:'Sykling',bike:50},
-  {id:'b27',p:'p2',date:'2026-03-15',name:'Langtur',run:18},{id:'b28',p:'p2',date:'2026-03-16',name:'Styrke',push:100,pull:30,sit:80,weight:45},
-];
-
-function loadDeleted() { try{return JSON.parse(localStorage.getItem('treningsdeleted')||'[]');}catch(e){return[];} }
-function saveDeleted(d) { localStorage.setItem('treningsdeleted',JSON.stringify(d)); }
-function loadData() {
-  try {
-    const saved=JSON.parse(localStorage.getItem('treningsdata')||'[]'), deleted=loadDeleted();
-    return [...BASE_DATA,...saved].filter(e=>!deleted.includes(e.id)).sort((a,b)=>a.date.localeCompare(b.date));
-  } catch(e) { return [...BASE_DATA]; }
-}
-function saveExtra(entry) { try{const s=JSON.parse(localStorage.getItem('treningsdata')||'[]');s.push(entry);localStorage.setItem('treningsdata',JSON.stringify(s));}catch(e){} }
-function updateSaved(id,updated) {
-  const saved=JSON.parse(localStorage.getItem('treningsdata')||'[]');
-  const idx=saved.findIndex(e=>e.id===id);
-  if(idx>=0){saved[idx]={...saved[idx],...updated};localStorage.setItem('treningsdata',JSON.stringify(saved));}
-}
-function deleteEntry(id) {
-  const saved=JSON.parse(localStorage.getItem('treningsdata')||'[]');
-  const idx=saved.findIndex(e=>e.id===id);
-  if(idx>=0){saved.splice(idx,1);localStorage.setItem('treningsdata',JSON.stringify(saved));}
-  else{const d=loadDeleted();d.push(id);saveDeleted(d);}
-  data=loadData();renderAll();
-}
-
-let data=loadData();
+// --- DATA (synced via Firebase) ---
+let data=[];
 const charts={};
 let idCounter=Date.now();
 let editingId=null;
+
+function saveEntry(entry) { db.ref('entries/'+entry.id).set(entry); }
+function deleteEntry(id) { db.ref('entries/'+id).remove(); }
+function updateEntry(id, updated) { db.ref('entries/'+id).update(updated); }
 
 function getDateRange() {
   if(!data.length)return[];
@@ -363,14 +337,14 @@ function renderActConfig(){
     </div>`
   ).join('');
 }
-window.updateActPts=function(i,val){activities[i].pts=parseFloat(val)||0;saveActivities(activities);data=loadData();renderAll();};
-window.removeActivity=function(i){if(activities.length<=3)return;activities.splice(i,1);saveActivities(activities);buildForm();renderAll();};
+window.updateActPts=function(i,val){activities[i].pts=parseFloat(val)||0;saveActivities(activities);};
+window.removeActivity=function(i){if(activities.length<=3)return;activities.splice(i,1);saveActivities(activities);};
 window.addActivity=function(){
   const nameEl=document.getElementById('newActName'),unitEl=document.getElementById('newActUnit');
   const label=nameEl.value.trim();if(!label)return;
   const key=label.toLowerCase().replace(/[^a-z0-9]/g,'')+'_'+Date.now().toString(36);
   activities.push({key,label,unit:unitEl.value,pts:1});
-  saveActivities(activities);nameEl.value='';buildForm();renderAll();
+  saveActivities(activities);nameEl.value='';
 };
 
 // DYNAMIC FORM
@@ -393,21 +367,18 @@ function updatePreview(){
 window.submitForm=function(){
   const date=document.getElementById('fd').value;if(!date){alert('Velg en dato');return;}
   const playerId=document.getElementById('fp').value;
-  const entry={id:'u'+(++idCounter).toString(36),p:playerId,date,name:document.getElementById('fname').value||getPlayerName(playerId)+' økt'};
-  activities.forEach(a=>{entry[a.key]=parseFloat(document.getElementById('f_'+a.key)?.value)||0;});
+  const entry={p:playerId,date,name:document.getElementById('fname').value||getPlayerName(playerId)+' økt'};
+  activities.forEach(a=>{const v=parseFloat(document.getElementById('f_'+a.key)?.value)||0;if(v)entry[a.key]=v;});
   if(editingId){
-    // Check if it's a base entry or user entry
-    const saved=JSON.parse(localStorage.getItem('treningsdata')||'[]');
-    const idx=saved.findIndex(e=>e.id===editingId);
-    if(idx>=0){saved[idx]={...saved[idx],...entry,id:editingId};localStorage.setItem('treningsdata',JSON.stringify(saved));}
-    else{const d=loadDeleted();d.push(editingId);saveDeleted(d);entry.id='u'+(++idCounter).toString(36);saveExtra(entry);}
+    entry.id=editingId;
+    saveEntry(entry);
     editingId=null;
     document.getElementById('formTitle').textContent='Logg ny økt';
     document.getElementById('formSubmitBtn').textContent='Legg til økt';
   } else {
-    saveExtra(entry);
+    entry.id='u'+(++idCounter).toString(36);
+    saveEntry(entry);
   }
-  data=loadData();renderAll();
   activities.forEach(a=>{const el=document.getElementById('f_'+a.key);if(el)el.value='';});
   document.getElementById('fname').value='';
   document.getElementById('fpreview').textContent='';
@@ -427,7 +398,7 @@ window.editEntry=function(id){
   activities.forEach(a=>{const el=document.getElementById('f_'+a.key);if(el)el.value=entry[a.key]||'';});
   updatePreview();
 };
-window.deleteEntry=deleteEntry;
+window.deleteEntry=function(id){db.ref('entries/'+id).remove();};
 
 // RECENT LOG
 function renderRecent(){
@@ -446,8 +417,11 @@ function renderPlayerList(){
     return`<div class="player-row"><div class="player-color-dot" style="background:${pal(i).color}"></div><div class="player-row-name">${p.name}</div><div class="player-row-score" style="color:${pal(i).color}">${total}p</div>${players.length>2?`<button class="player-del-btn" onclick="removePlayer('${p.id}')">✕</button>`:''}</div>`;
   }).join('');
 }
-window.addPlayer=function(){const input=document.getElementById('newPlayerName'),name=input.value.trim();if(!name)return;players.push({id:'p'+Date.now().toString(36),name});savePlayers(players);input.value='';buildForm();renderAll();};
-window.removePlayer=function(id){if(players.length<=2)return;players=players.filter(p=>p.id!==id);savePlayers(players);const s=JSON.parse(localStorage.getItem('treningsdata')||'[]');localStorage.setItem('treningsdata',JSON.stringify(s.filter(e=>e.p!==id)));const d=loadDeleted();BASE_DATA.filter(e=>e.p===id).forEach(e=>d.push(e.id));saveDeleted(d);data=loadData();buildForm();renderAll();};
+window.addPlayer=function(){const input=document.getElementById('newPlayerName'),name=input.value.trim();if(!name)return;players.push({id:'p'+Date.now().toString(36),name});savePlayers(players);input.value='';};
+window.removePlayer=function(id){if(players.length<=2)return;players=players.filter(p=>p.id!==id);savePlayers(players);
+  // Remove entries for this player
+  data.filter(e=>e.p===id).forEach(e=>db.ref('entries/'+e.id).remove());
+};
 
 // TABS
 window.goChart=function(id,btn){document.querySelectorAll('.chart-view').forEach(v=>v.classList.remove('active'));document.querySelectorAll('.chart-tab').forEach(b=>b.classList.remove('active'));document.getElementById('cv-'+id).classList.add('active');btn.classList.add('active');if(id==='aktivitet'){renderActPills();renderActChart();}if(id==='uke')renderWeek();if(id==='daglig')renderDaily();if(id==='oversikt')renderCumul();};
@@ -459,9 +433,67 @@ function renderAll(){renderLeague();renderCumul();renderDaily();renderRecent();r
   if(document.getElementById('sp-deltakere').classList.contains('active'))renderPlayerList();
 }
 
+// --- FIREBASE REAL-TIME LISTENERS ---
+const BASE_DATA = [
+  {id:'b1',p:'p1',date:'2026-03-03',name:'Morgenløp',run:8},{id:'b2',p:'p1',date:'2026-03-04',name:'Styrke',push:80,pull:20,sit:60},
+  {id:'b3',p:'p1',date:'2026-03-05',name:'Sykkeltur',bike:45},{id:'b4',p:'p1',date:'2026-03-06',name:'Svømming',swim:2},
+  {id:'b5',p:'p1',date:'2026-03-07',name:'Intervaller',run:12},{id:'b6',p:'p1',date:'2026-03-08',name:'Vekttrening',push:100,pull:30,weight:45},
+  {id:'b7',p:'p1',date:'2026-03-09',name:'Langtur',run:20},{id:'b8',p:'p1',date:'2026-03-10',name:'Rolig løp',run:6},
+  {id:'b9',p:'p1',date:'2026-03-11',name:'Styrke',push:90,pull:25,sit:80},{id:'b10',p:'p1',date:'2026-03-12',name:'Sykling hard',bike:60},
+  {id:'b11',p:'p1',date:'2026-03-13',name:'Svømming',swim:3},{id:'b12',p:'p1',date:'2026-03-14',name:'Terskelintervall',run:14},
+  {id:'b13',p:'p1',date:'2026-03-15',name:'Full styrke',push:120,pull:35,sit:100,weight:60},{id:'b14',p:'p1',date:'2026-03-16',name:'Søndagsløp',run:10},
+  {id:'b15',p:'p2',date:'2026-03-03',name:'Morgenløp',run:5},{id:'b16',p:'p2',date:'2026-03-04',name:'Sykkeltur',bike:30},
+  {id:'b17',p:'p2',date:'2026-03-05',name:'Styrke',push:60,pull:15,sit:50},{id:'b18',p:'p2',date:'2026-03-06',name:'Løp',run:10},
+  {id:'b19',p:'p2',date:'2026-03-07',name:'Svømming',swim:1.5},{id:'b20',p:'p2',date:'2026-03-08',name:'Vekttrening',push:70,weight:60},
+  {id:'b21',p:'p2',date:'2026-03-09',name:'Lang sykkel',bike:80},{id:'b22',p:'p2',date:'2026-03-10',name:'Rolig løp',run:7},
+  {id:'b23',p:'p2',date:'2026-03-11',name:'Styrke',push:80,pull:20,sit:70},{id:'b24',p:'p2',date:'2026-03-12',name:'Intervaller',run:11},
+  {id:'b25',p:'p2',date:'2026-03-13',name:'Svømming',swim:2},{id:'b26',p:'p2',date:'2026-03-14',name:'Sykling',bike:50},
+  {id:'b27',p:'p2',date:'2026-03-15',name:'Langtur',run:18},{id:'b28',p:'p2',date:'2026-03-16',name:'Styrke',push:100,pull:30,sit:80,weight:45},
+];
+
+let initialized = false;
+
+// Seed base data to Firebase on first run
+async function seedIfNeeded() {
+  const snap = await db.ref('entries').once('value');
+  if (!snap.exists()) {
+    const updates = {};
+    BASE_DATA.forEach(e => { updates[e.id] = e; });
+    await db.ref('entries').set(updates);
+  }
+  const pSnap = await db.ref('players').once('value');
+  if (!pSnap.exists()) await db.ref('players').set(DEFAULT_PLAYERS);
+  const aSnap = await db.ref('activities').once('value');
+  if (!aSnap.exists()) await db.ref('activities').set(DEFAULT_ACTIVITIES);
+}
+
+// Listen to entries
+db.ref('entries').on('value', snap => {
+  const val = snap.val();
+  data = val ? Object.values(val).sort((a,b)=>(a.date||'').localeCompare(b.date||'')) : [];
+  if (initialized) renderAll();
+});
+
+// Listen to players
+db.ref('players').on('value', snap => {
+  const val = snap.val();
+  if (val) { players = Array.isArray(val) ? val : Object.values(val); }
+  if (initialized) { updateBrandVs(); buildForm(); renderAll(); }
+});
+
+// Listen to activities
+db.ref('activities').on('value', snap => {
+  const val = snap.val();
+  if (val) { activities = Array.isArray(val) ? val : Object.values(val); }
+  if (initialized) { buildForm(); renderAll(); }
+});
+
 // INIT
 document.getElementById('hdate').textContent=new Date().toLocaleDateString('nb-NO',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
-updateBrandVs();buildForm();renderActPills();renderAll();
+seedIfNeeded().then(() => {
+  initialized = true;
+  updateBrandVs(); buildForm(); renderActPills(); renderAll();
+});
 </script>
 </body>
 </html>
