@@ -45,6 +45,8 @@
     gap: 0;
     position: relative;
     z-index: 1;
+    max-width: 100vw;
+    overflow: hidden;
   }
 
   /* HEADER — spans full width */
@@ -64,10 +66,11 @@
   /* LEFT COLUMN — chart area */
   .left-col {
     padding: 16px 20px;
-    overflow-y: auto;
+    overflow: hidden;
     display: flex;
     flex-direction: column;
     gap: 12px;
+    min-width: 0;
   }
 
   /* RIGHT COLUMN — sidebar */
@@ -76,7 +79,9 @@
     display: flex;
     flex-direction: column;
     overflow-y: auto;
+    overflow-x: hidden;
     padding: 0;
+    min-width: 0;
   }
 
   /* LEAGUE TABLE */
@@ -116,7 +121,7 @@
 
   /* SIDEBAR CONTENT */
   .side-content { flex: 1; overflow-y: auto; }
-  .side-panel { display: none; padding: 14px 16px; }
+  .side-panel { display: none; padding: 14px 16px; overflow: hidden; }
   .side-panel.active { display: block; }
 
   /* ALGO PILLS in sidebar */
@@ -133,7 +138,7 @@
   .section-title:not(:first-child) { margin-top: 14px; }
 
   /* CHART CARD */
-  .chart-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 16px 18px 12px; }
+  .chart-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 16px 18px 12px; min-width: 0; overflow: hidden; }
   .chart-card-title {
     font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 11px;
     letter-spacing: .15em; text-transform: uppercase; color: var(--muted); margin-bottom: 10px;
@@ -154,7 +159,7 @@
   }
   .chart-tab.active { background: var(--bg3); color: var(--text); border: 1px solid var(--border); }
 
-  .chart-view { display: none; flex: 1; flex-direction: column; gap: 12px; }
+  .chart-view { display: none; flex: 1; flex-direction: column; gap: 12px; min-width: 0; overflow: hidden; }
   .chart-view.active { display: flex; }
 
   /* ACTIVITY SELECTOR */
@@ -413,7 +418,7 @@ const PALETTE = [
 ];
 function pal(i) { return PALETTE[i % PALETTE.length]; }
 
-const DEFAULT_PLAYERS = [{id:'p1',name:'Deg'},{id:'p2',name:'Sølve'}];
+const DEFAULT_PLAYERS = [{id:'p1',name:'Viktor'},{id:'p2',name:'Sølve'}];
 function loadPlayers() {
   try { const s = localStorage.getItem('treningsplayers'); if (s) return JSON.parse(s); } catch(e) {}
   return [...DEFAULT_PLAYERS];
