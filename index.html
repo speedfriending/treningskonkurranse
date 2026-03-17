@@ -256,6 +256,8 @@
     <span class="algo-pill">Pushups <b>0.5p</b></span>
     <span class="algo-pill">Situps <b>0.3p</b></span>
     <span class="algo-pill">Vekttrening <b>0.8p/min</b></span>
+    <span class="algo-pill">Planke <b>5p/min</b></span>
+    <span class="algo-pill">Sunn dag <b>10p</b></span>
   </div>
 
   <!-- TABS -->
@@ -328,7 +330,9 @@
         <div class="fg"><label>Pushups</label><input type="number" id="fpu" placeholder="0" min="0"></div>
         <div class="fg"><label>Pullups</label><input type="number" id="fpl" placeholder="0" min="0"></div>
         <div class="fg"><label>Situps</label><input type="number" id="fsi" placeholder="0" min="0"></div>
-        <div class="fg form-full"><label>Vekttrening (min)</label><input type="number" id="fv" placeholder="0" min="0"></div>
+        <div class="fg"><label>Vekttrening (min)</label><input type="number" id="fv" placeholder="0" min="0"></div>
+        <div class="fg"><label>Planke (min)</label><input type="number" id="fplank" placeholder="0" min="0" step="0.1"></div>
+        <div class="fg form-full"><label>Sunn dag (antall)</label><input type="number" id="fhealthy" placeholder="0 eller 1" min="0" max="1"></div>
       </div>
       <div class="form-preview" id="fpreview"></div>
       <button class="submit-btn" style="background:var(--accent)" onclick="addEntry()">Legg til økt</button>
@@ -354,10 +358,11 @@
 </div>
 
 <script>
-const W = {run:10, bike:3, swim:20, push:.5, pull:1.5, sit:.3, weight:.8};
+const W = {run:10, bike:3, swim:20, push:.5, pull:1.5, sit:.3, weight:.8, plank:5, healthy:10};
 function pts(e) {
   return (e.run||0)*W.run + (e.bike||0)*W.bike + (e.swim||0)*W.swim +
-    (e.push||0)*W.push + (e.pull||0)*W.pull + (e.sit||0)*W.sit + (e.weight||0)*W.weight;
+    (e.push||0)*W.push + (e.pull||0)*W.pull + (e.sit||0)*W.sit + (e.weight||0)*W.weight +
+    (e.plank||0)*W.plank + (e.healthy||0)*W.healthy;
 }
 
 // --- COLOR PALETTE ---
@@ -618,6 +623,8 @@ const ACT_DEFS = [
   {key:'pull', label:'Pullups', unit:'rep'},
   {key:'sit', label:'Situps', unit:'rep'},
   {key:'weight', label:'Vekttrening', unit:'min'},
+  {key:'plank', label:'Planke', unit:'min'},
+  {key:'healthy', label:'Sunn dag', unit:'dager'},
 ];
 let currentAct = 'run';
 
@@ -785,11 +792,13 @@ window.addEntry = function() {
     pull: +document.getElementById('fpl').value||0,
     sit: +document.getElementById('fsi').value||0,
     weight: +document.getElementById('fv').value||0,
+    plank: +document.getElementById('fplank').value||0,
+    healthy: +document.getElementById('fhealthy').value||0,
   };
   saveExtra(entry);
   data = loadData();
   renderAll();
-  ['fr','fb','fs','fpu','fpl','fsi','fv'].forEach(id=>document.getElementById(id).value='');
+  ['fr','fb','fs','fpu','fpl','fsi','fv','fplank','fhealthy'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('fpreview').textContent = '';
   goTab('oversikt', document.querySelector('.tab-btn'));
 };
@@ -797,7 +806,7 @@ window.addEntry = function() {
 window.deleteEntry = deleteEntry;
 
 // PREVIEW
-['fr','fb','fs','fpu','fpl','fsi','fv'].forEach(id => {
+['fr','fb','fs','fpu','fpl','fsi','fv','fplank','fhealthy'].forEach(id => {
   document.getElementById(id)?.addEventListener('input', () => {
     const p = pts({
       run:+document.getElementById('fr').value||0,
@@ -807,6 +816,8 @@ window.deleteEntry = deleteEntry;
       pull:+document.getElementById('fpl').value||0,
       sit:+document.getElementById('fsi').value||0,
       weight:+document.getElementById('fv').value||0,
+      plank:+document.getElementById('fplank').value||0,
+      healthy:+document.getElementById('fhealthy').value||0,
     });
     document.getElementById('fpreview').textContent = p>0 ? `${Math.round(p)} poeng` : '';
   });
