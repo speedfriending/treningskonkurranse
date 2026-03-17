@@ -1,0 +1,924 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Sandenbanden — Treningskonkurranse</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --warm: #FF6B4A;
+    --warm2: #FF8C42;
+    --warm-soft: rgba(255,107,74,.08);
+    --warm-med: rgba(255,107,74,.15);
+    --coral: #FF5E6C;
+    --gold: #FFB830;
+    --green: #36D399;
+    --blue: #5B8DEF;
+    --purple: #A855F7;
+    --bg: #FEFCFA;
+    --bg2: #FFF8F3;
+    --card: #FFFFFF;
+    --text: #1A1A2E;
+    --text2: #4A4A68;
+    --text3: #9A9AB0;
+    --border: rgba(26,26,46,.06);
+    --shadow: 0 2px 12px rgba(26,26,46,.06);
+    --shadow-lg: 0 8px 32px rgba(26,26,46,.08);
+    --radius: 20px;
+    --radius-sm: 14px;
+    --radius-xs: 10px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { height: 100%; }
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    height: 100%;
+    overflow: hidden;
+  }
+
+  /* APP SHELL */
+  .app {
+    max-width: 430px;
+    margin: 0 auto;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background: var(--bg);
+    position: relative;
+    overflow: hidden;
+    box-shadow: var(--shadow-lg);
+  }
+
+  /* STATUS BAR */
+  .status-bar {
+    padding: 8px 20px 4px;
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  /* TOP HEADER */
+  .top-header {
+    padding: 4px 20px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .top-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .top-logo-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, var(--warm), var(--warm2));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    box-shadow: 0 4px 12px rgba(255,107,74,.25);
+  }
+  .top-logo-text {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: 20px;
+    color: var(--text);
+  }
+  .top-logo-text span { color: var(--warm); }
+  .top-actions { display: flex; gap: 8px; }
+  .top-btn {
+    width: 38px;
+    height: 38px;
+    border-radius: 12px;
+    border: 1.5px solid var(--border);
+    background: var(--card);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all .2s;
+    box-shadow: var(--shadow);
+  }
+  .top-btn:hover { border-color: var(--warm); }
+  .top-btn .badge {
+    position: absolute;
+    top: -3px;
+    right: -3px;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--coral);
+    color: #fff;
+    font-size: 9px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .top-btn-wrap { position: relative; }
+
+  /* SCROLLABLE CONTENT */
+  .content {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 0 20px 100px;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+  }
+  .content::-webkit-scrollbar { display: none; }
+
+  /* ACTIVE CHALLENGE BANNER */
+  .challenge-banner {
+    background: linear-gradient(135deg, var(--warm), var(--coral));
+    border-radius: var(--radius);
+    padding: 20px;
+    margin-bottom: 20px;
+    color: #fff;
+    position: relative;
+    overflow: hidden;
+  }
+  .challenge-banner::after {
+    content: '';
+    position: absolute;
+    top: -20px;
+    right: -20px;
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: rgba(255,255,255,.1);
+  }
+  .challenge-banner::before {
+    content: '';
+    position: absolute;
+    bottom: -30px;
+    left: 40%;
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: rgba(255,255,255,.07);
+  }
+  .challenge-tag {
+    display: inline-block;
+    padding: 3px 10px;
+    background: rgba(255,255,255,.2);
+    border-radius: 20px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  .challenge-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 4px;
+    position: relative;
+    z-index: 1;
+  }
+  .challenge-sub { font-size: 13px; opacity: .85; margin-bottom: 14px; position: relative; z-index: 1; }
+  .challenge-progress-wrap { position: relative; z-index: 1; }
+  .challenge-progress-bar {
+    height: 8px;
+    border-radius: 4px;
+    background: rgba(255,255,255,.2);
+    overflow: hidden;
+    margin-bottom: 8px;
+  }
+  .challenge-progress-fill {
+    height: 100%;
+    border-radius: 4px;
+    background: #fff;
+    transition: width 1s ease;
+  }
+  .challenge-progress-labels { display: flex; justify-content: space-between; font-size: 11px; font-weight: 600; }
+
+  /* LEADERBOARD */
+  .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+  }
+  .section-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+  }
+  .section-link {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--warm);
+    cursor: pointer;
+  }
+
+  .podium {
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 16px;
+    padding: 0 10px;
+  }
+  .podium-player {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+  .podium-player.first { order: 0; }
+  .podium-player.second { order: -1; }
+  .podium-player.third { order: 1; }
+  .podium-avatar {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    font-weight: 700;
+    position: relative;
+  }
+  .podium-player.first .podium-avatar {
+    width: 68px;
+    height: 68px;
+    font-size: 28px;
+    box-shadow: 0 4px 20px rgba(255,184,48,.3);
+  }
+  .podium-crown {
+    position: absolute;
+    top: -14px;
+    font-size: 20px;
+  }
+  .podium-name { font-size: 13px; font-weight: 600; }
+  .podium-pts { font-size: 11px; color: var(--text3); font-weight: 500; }
+  .podium-bar {
+    width: 80px;
+    border-radius: 12px 12px 0 0;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding-top: 10px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: 20px;
+    color: #fff;
+  }
+  .podium-player.first .podium-bar { height: 100px; background: linear-gradient(180deg, var(--gold), #E5A320); }
+  .podium-player.second .podium-bar { height: 75px; background: linear-gradient(180deg, #C0C0C0, #A0A0A0); }
+  .podium-player.third .podium-bar { height: 55px; background: linear-gradient(180deg, #CD7F32, #B06A28); }
+
+  /* LEAGUE LIST */
+  .league-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 24px; }
+  .league-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    background: var(--card);
+    border-radius: var(--radius-sm);
+    border: 1.5px solid var(--border);
+    box-shadow: var(--shadow);
+    transition: all .2s;
+    cursor: pointer;
+  }
+  .league-item:hover { border-color: var(--warm-med); transform: translateY(-1px); box-shadow: var(--shadow-lg); }
+  .league-item.me { background: var(--bg2); border-color: var(--warm-med); }
+  .league-rank {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 800;
+    font-size: 16px;
+    width: 28px;
+    text-align: center;
+    color: var(--text3);
+  }
+  .league-rank.top { color: var(--warm); }
+  .league-avatar {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+  .league-info { flex: 1; min-width: 0; }
+  .league-name { font-size: 15px; font-weight: 600; }
+  .league-streak { font-size: 11px; color: var(--text3); margin-top: 1px; }
+  .league-score {
+    text-align: right;
+  }
+  .league-pts-val {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: 18px;
+  }
+  .league-pts-diff {
+    font-size: 11px;
+    font-weight: 500;
+  }
+  .league-pts-diff.up { color: var(--green); }
+  .league-pts-diff.down { color: var(--coral); }
+
+  /* ACTIVITY FEED */
+  .feed-card {
+    background: var(--card);
+    border-radius: var(--radius);
+    border: 1.5px solid var(--border);
+    box-shadow: var(--shadow);
+    margin-bottom: 14px;
+    overflow: hidden;
+  }
+  .feed-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 16px 10px;
+  }
+  .feed-avatar {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+  .feed-user-info { flex: 1; }
+  .feed-user-name { font-size: 14px; font-weight: 600; }
+  .feed-time { font-size: 11px; color: var(--text3); }
+  .feed-type-badge {
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+  }
+  .feed-body { padding: 0 16px 12px; }
+  .feed-title { font-family: 'Space Grotesk', sans-serif; font-size: 16px; font-weight: 700; margin-bottom: 8px; }
+  .feed-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  .feed-stat {
+    background: var(--bg2);
+    border-radius: var(--radius-xs);
+    padding: 10px;
+    text-align: center;
+  }
+  .feed-stat-val {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: 18px;
+    color: var(--warm);
+  }
+  .feed-stat-label { font-size: 10px; color: var(--text3); font-weight: 500; margin-top: 2px; }
+  .feed-reactions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 16px;
+    border-top: 1px solid var(--border);
+  }
+  .feed-reaction {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 5px 12px;
+    border-radius: 20px;
+    background: var(--bg2);
+    font-size: 12px;
+    cursor: pointer;
+    transition: all .15s;
+    border: 1px solid transparent;
+  }
+  .feed-reaction:hover { border-color: var(--warm-med); }
+  .feed-reaction.active { background: var(--warm-soft); border-color: var(--warm); }
+  .feed-reaction-emoji { font-size: 14px; }
+  .feed-reaction-count { font-weight: 600; color: var(--text2); font-size: 12px; }
+  .feed-comment-btn { margin-left: auto; font-size: 12px; color: var(--text3); font-weight: 500; cursor: pointer; }
+
+  /* QUICK LOG BUTTON */
+  .quick-log {
+    position: absolute;
+    bottom: 90px;
+    right: 20px;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--warm), var(--coral));
+    border: none;
+    color: #fff;
+    font-size: 26px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 6px 24px rgba(255,107,74,.35);
+    transition: all .2s;
+    z-index: 10;
+  }
+  .quick-log:hover { transform: scale(1.08); box-shadow: 0 8px 32px rgba(255,107,74,.45); }
+  .quick-log:active { transform: scale(.95); }
+
+  /* BOTTOM NAV */
+  .bottom-nav {
+    display: flex;
+    padding: 8px 10px calc(env(safe-area-inset-bottom, 8px) + 8px);
+    background: var(--card);
+    border-top: 1px solid var(--border);
+    box-shadow: 0 -2px 12px rgba(0,0,0,.04);
+    flex-shrink: 0;
+  }
+  .nav-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    padding: 6px 0;
+    cursor: pointer;
+    transition: all .15s;
+    border-radius: 12px;
+  }
+  .nav-item.active .nav-icon { color: var(--warm); }
+  .nav-item.active .nav-label { color: var(--warm); }
+  .nav-icon { font-size: 20px; color: var(--text3); transition: color .15s; }
+  .nav-label { font-size: 9px; font-weight: 600; color: var(--text3); letter-spacing: .02em; }
+  .nav-item.active .nav-dot {
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: var(--warm);
+    margin-top: 2px;
+  }
+
+  /* WEEKLY CHART CARD */
+  .chart-card {
+    background: var(--card);
+    border-radius: var(--radius);
+    border: 1.5px solid var(--border);
+    box-shadow: var(--shadow);
+    padding: 18px;
+    margin-bottom: 20px;
+  }
+  .chart-card-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .chart-card-sub { font-size: 12px; color: var(--text3); margin-bottom: 16px; }
+  .mini-bars { display: flex; align-items: flex-end; gap: 6px; height: 100px; }
+  .mini-bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+  .mini-bar {
+    width: 100%;
+    border-radius: 6px;
+    transition: height .6s ease;
+  }
+  .mini-bar-label { font-size: 10px; color: var(--text3); font-weight: 500; }
+  .mini-bar-val { font-size: 10px; font-weight: 700; color: var(--text2); }
+
+  /* STREAK CARD */
+  .streak-card {
+    background: linear-gradient(135deg, #1A1A2E, #2D2D44);
+    border-radius: var(--radius);
+    padding: 20px;
+    color: #fff;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .streak-fire { font-size: 42px; }
+  .streak-info { flex: 1; }
+  .streak-count {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 32px;
+    font-weight: 800;
+    line-height: 1;
+  }
+  .streak-label { font-size: 13px; opacity: .7; margin-top: 2px; }
+  .streak-days { display: flex; gap: 6px; margin-top: 10px; }
+  .streak-day {
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 600;
+  }
+  .streak-day.done { background: var(--warm); }
+  .streak-day.today { background: rgba(255,255,255,.15); border: 1.5px dashed rgba(255,255,255,.3); }
+  .streak-day.future { background: rgba(255,255,255,.06); color: rgba(255,255,255,.3); }
+
+  /* ANIMATIONS */
+  @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+  .animate-in { animation: slideUp .5s ease forwards; }
+  .delay-1 { animation-delay: .1s; opacity: 0; }
+  .delay-2 { animation-delay: .2s; opacity: 0; }
+  .delay-3 { animation-delay: .3s; opacity: 0; }
+  .delay-4 { animation-delay: .4s; opacity: 0; }
+  .delay-5 { animation-delay: .5s; opacity: 0; }
+
+  /* DESKTOP */
+  @media (min-width: 800px) {
+    body { background: #F0EDE8; display: flex; align-items: center; justify-content: center; }
+    .app { border-radius: 32px; height: 90vh; max-height: 900px; border: 1px solid rgba(0,0,0,.08); }
+    .desktop-frame {
+      position: fixed;
+      top: 30px;
+      left: 50px;
+      font-family: 'Space Grotesk', sans-serif;
+      color: #999;
+    }
+    .desktop-frame h1 { font-size: 14px; font-weight: 600; color: #666; }
+    .desktop-frame p { font-size: 12px; margin-top: 4px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="desktop-frame" style="display:none" id="desktopFrame">
+  <h1>Sandenbanden — Prototype</h1>
+  <p>Treningskonkurranse-app</p>
+</div>
+
+<div class="app">
+  <!-- Status bar -->
+  <div class="status-bar">
+    <span>9:41</span>
+    <span style="display:flex;gap:4px;align-items:center">
+      <span style="font-size:10px">5G</span>
+      <span>🔋</span>
+    </span>
+  </div>
+
+  <!-- Header -->
+  <div class="top-header">
+    <div class="top-logo">
+      <div class="top-logo-icon">🔥</div>
+      <div class="top-logo-text">Sanden<span>banden</span></div>
+    </div>
+    <div class="top-actions">
+      <div class="top-btn-wrap">
+        <div class="top-btn">🔔</div>
+        <div class="badge">3</div>
+      </div>
+      <div class="top-btn">⚙️</div>
+    </div>
+  </div>
+
+  <!-- Content -->
+  <div class="content">
+
+    <!-- Active Challenge -->
+    <div class="challenge-banner animate-in">
+      <div class="challenge-tag">Aktiv konkurranse</div>
+      <div class="challenge-title">Mars Madness 🏃‍♂️</div>
+      <div class="challenge-sub">14 av 31 dager · Slutter 31. mars</div>
+      <div class="challenge-progress-wrap">
+        <div class="challenge-progress-bar">
+          <div class="challenge-progress-fill" style="width:45%"></div>
+        </div>
+        <div class="challenge-progress-labels">
+          <span>Dag 14</span>
+          <span>5 deltakere</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Streak -->
+    <div class="streak-card animate-in delay-1">
+      <div class="streak-fire">🔥</div>
+      <div class="streak-info">
+        <div class="streak-count">12</div>
+        <div class="streak-label">dager på rad</div>
+        <div class="streak-days">
+          <div class="streak-day done">M</div>
+          <div class="streak-day done">T</div>
+          <div class="streak-day done">O</div>
+          <div class="streak-day done">T</div>
+          <div class="streak-day done">F</div>
+          <div class="streak-day today">L</div>
+          <div class="streak-day future">S</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Leaderboard -->
+    <div class="section-header animate-in delay-2">
+      <div class="section-title">Ledertavle</div>
+      <div class="section-link">Se alle →</div>
+    </div>
+
+    <!-- Podium -->
+    <div class="podium animate-in delay-2">
+      <div class="podium-player second">
+        <div class="podium-avatar" style="background:linear-gradient(135deg,#5B8DEF,#4A7BD4)">S</div>
+        <div class="podium-name">Sølve</div>
+        <div class="podium-pts">1 247p</div>
+        <div class="podium-bar">2</div>
+      </div>
+      <div class="podium-player first">
+        <div class="podium-avatar" style="background:linear-gradient(135deg,var(--warm),var(--coral))">
+          <span class="podium-crown">👑</span>
+          V
+        </div>
+        <div class="podium-name">Viktor</div>
+        <div class="podium-pts">1 583p</div>
+        <div class="podium-bar">1</div>
+      </div>
+      <div class="podium-player third">
+        <div class="podium-avatar" style="background:linear-gradient(135deg,var(--green),#28B580)">M</div>
+        <div class="podium-name">Mamma</div>
+        <div class="podium-pts">892p</div>
+        <div class="podium-bar">3</div>
+      </div>
+    </div>
+
+    <!-- League list -->
+    <div class="league-list animate-in delay-3">
+      <div class="league-item">
+        <div class="league-rank">4</div>
+        <div class="league-avatar" style="background:linear-gradient(135deg,var(--purple),#8B3FD4)">P</div>
+        <div class="league-info">
+          <div class="league-name">Pappa</div>
+          <div class="league-streak">🔥 8 dager streak</div>
+        </div>
+        <div class="league-score">
+          <div class="league-pts-val">741p</div>
+          <div class="league-pts-diff up">↑ +86 i dag</div>
+        </div>
+      </div>
+      <div class="league-item">
+        <div class="league-rank">5</div>
+        <div class="league-avatar" style="background:linear-gradient(135deg,var(--gold),#E5A320)">L</div>
+        <div class="league-info">
+          <div class="league-name">Lillesøster</div>
+          <div class="league-streak">🔥 3 dager streak</div>
+        </div>
+        <div class="league-score">
+          <div class="league-pts-val">512p</div>
+          <div class="league-pts-diff down">↓ hviledag</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Weekly chart -->
+    <div class="chart-card animate-in delay-3">
+      <div class="chart-card-title">Denne uken</div>
+      <div class="chart-card-sub">Du har logget 4 av 7 dager</div>
+      <div class="mini-bars">
+        <div class="mini-bar-col">
+          <div class="mini-bar-val">86</div>
+          <div class="mini-bar" style="height:70px;background:linear-gradient(180deg,var(--warm),var(--warm2))"></div>
+          <div class="mini-bar-label">Ma</div>
+        </div>
+        <div class="mini-bar-col">
+          <div class="mini-bar-val">120</div>
+          <div class="mini-bar" style="height:95px;background:linear-gradient(180deg,var(--warm),var(--warm2))"></div>
+          <div class="mini-bar-label">Ti</div>
+        </div>
+        <div class="mini-bar-col">
+          <div class="mini-bar-val">45</div>
+          <div class="mini-bar" style="height:40px;background:linear-gradient(180deg,var(--warm),var(--warm2))"></div>
+          <div class="mini-bar-label">On</div>
+        </div>
+        <div class="mini-bar-col">
+          <div class="mini-bar-val">92</div>
+          <div class="mini-bar" style="height:75px;background:linear-gradient(180deg,var(--warm),var(--warm2))"></div>
+          <div class="mini-bar-label">To</div>
+        </div>
+        <div class="mini-bar-col">
+          <div class="mini-bar-val">—</div>
+          <div class="mini-bar" style="height:4px;background:var(--border)"></div>
+          <div class="mini-bar-label" style="color:var(--warm)">Fr</div>
+        </div>
+        <div class="mini-bar-col">
+          <div class="mini-bar-val">—</div>
+          <div class="mini-bar" style="height:4px;background:var(--border)"></div>
+          <div class="mini-bar-label">Lø</div>
+        </div>
+        <div class="mini-bar-col">
+          <div class="mini-bar-val">—</div>
+          <div class="mini-bar" style="height:4px;background:var(--border)"></div>
+          <div class="mini-bar-label">Sø</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Activity Feed -->
+    <div class="section-header animate-in delay-4">
+      <div class="section-title">Aktivitet</div>
+      <div class="section-link">Filter →</div>
+    </div>
+
+    <div class="feed-card animate-in delay-4">
+      <div class="feed-header">
+        <div class="feed-avatar" style="background:linear-gradient(135deg,var(--warm),var(--coral))">V</div>
+        <div class="feed-user-info">
+          <div class="feed-user-name">Viktor</div>
+          <div class="feed-time">I dag kl 07:32</div>
+        </div>
+        <div class="feed-type-badge" style="background:var(--warm-soft);color:var(--warm)">Løping</div>
+      </div>
+      <div class="feed-body">
+        <div class="feed-title">Morgenløp i Nordmarka 🌲</div>
+        <div class="feed-stats">
+          <div class="feed-stat">
+            <div class="feed-stat-val">8.2</div>
+            <div class="feed-stat-label">Kilometer</div>
+          </div>
+          <div class="feed-stat">
+            <div class="feed-stat-val">42:15</div>
+            <div class="feed-stat-label">Tid</div>
+          </div>
+          <div class="feed-stat">
+            <div class="feed-stat-val">82</div>
+            <div class="feed-stat-label">Poeng</div>
+          </div>
+        </div>
+      </div>
+      <div class="feed-reactions">
+        <div class="feed-reaction active">
+          <span class="feed-reaction-emoji">🔥</span>
+          <span class="feed-reaction-count">3</span>
+        </div>
+        <div class="feed-reaction">
+          <span class="feed-reaction-emoji">💪</span>
+          <span class="feed-reaction-count">1</span>
+        </div>
+        <div class="feed-reaction">
+          <span class="feed-reaction-emoji">👏</span>
+        </div>
+        <div class="feed-comment-btn">💬 2 kommentarer</div>
+      </div>
+    </div>
+
+    <div class="feed-card animate-in delay-5">
+      <div class="feed-header">
+        <div class="feed-avatar" style="background:linear-gradient(135deg,#5B8DEF,#4A7BD4)">S</div>
+        <div class="feed-user-info">
+          <div class="feed-user-name">Sølve</div>
+          <div class="feed-time">I går kl 18:45</div>
+        </div>
+        <div class="feed-type-badge" style="background:rgba(54,211,153,.1);color:var(--green)">Styrke</div>
+      </div>
+      <div class="feed-body">
+        <div class="feed-title">Beindag + planke-PR! 🏋️</div>
+        <div class="feed-stats">
+          <div class="feed-stat">
+            <div class="feed-stat-val">100</div>
+            <div class="feed-stat-label">Pushups</div>
+          </div>
+          <div class="feed-stat">
+            <div class="feed-stat-val">4:30</div>
+            <div class="feed-stat-label">Planke</div>
+          </div>
+          <div class="feed-stat">
+            <div class="feed-stat-val">97</div>
+            <div class="feed-stat-label">Poeng</div>
+          </div>
+        </div>
+      </div>
+      <div class="feed-reactions">
+        <div class="feed-reaction active">
+          <span class="feed-reaction-emoji">💪</span>
+          <span class="feed-reaction-count">4</span>
+        </div>
+        <div class="feed-reaction">
+          <span class="feed-reaction-emoji">😱</span>
+          <span class="feed-reaction-count">2</span>
+        </div>
+        <div class="feed-comment-btn">💬 5 kommentarer</div>
+      </div>
+    </div>
+
+    <div class="feed-card animate-in delay-5">
+      <div class="feed-header">
+        <div class="feed-avatar" style="background:linear-gradient(135deg,var(--purple),#8B3FD4)">P</div>
+        <div class="feed-user-info">
+          <div class="feed-user-name">Pappa</div>
+          <div class="feed-time">I går kl 12:20</div>
+        </div>
+        <div class="feed-type-badge" style="background:rgba(91,141,239,.1);color:var(--blue)">Sykling</div>
+      </div>
+      <div class="feed-body">
+        <div class="feed-title">Tur til Drøbak og tilbake 🚴</div>
+        <div class="feed-stats">
+          <div class="feed-stat">
+            <div class="feed-stat-val">42</div>
+            <div class="feed-stat-label">Kilometer</div>
+          </div>
+          <div class="feed-stat">
+            <div class="feed-stat-val">1:52</div>
+            <div class="feed-stat-label">Tid</div>
+          </div>
+          <div class="feed-stat">
+            <div class="feed-stat-val">126</div>
+            <div class="feed-stat-label">Poeng</div>
+          </div>
+        </div>
+      </div>
+      <div class="feed-reactions">
+        <div class="feed-reaction">
+          <span class="feed-reaction-emoji">🔥</span>
+          <span class="feed-reaction-count">2</span>
+        </div>
+        <div class="feed-reaction active">
+          <span class="feed-reaction-emoji">🚀</span>
+          <span class="feed-reaction-count">1</span>
+        </div>
+        <div class="feed-comment-btn">💬 1 kommentar</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Quick log FAB -->
+  <button class="quick-log" onclick="this.style.transform='scale(1.2) rotate(90deg)';setTimeout(()=>this.style.transform='',300)">+</button>
+
+  <!-- Bottom Nav -->
+  <div class="bottom-nav">
+    <div class="nav-item active">
+      <div class="nav-icon">🏠</div>
+      <div class="nav-label">Hjem</div>
+      <div class="nav-dot"></div>
+    </div>
+    <div class="nav-item">
+      <div class="nav-icon">🏆</div>
+      <div class="nav-label">Liga</div>
+    </div>
+    <div class="nav-item">
+      <div class="nav-icon">📊</div>
+      <div class="nav-label">Statistikk</div>
+    </div>
+    <div class="nav-item">
+      <div class="nav-icon">👥</div>
+      <div class="nav-label">Grupper</div>
+    </div>
+    <div class="nav-item">
+      <div class="nav-icon">👤</div>
+      <div class="nav-label">Profil</div>
+    </div>
+  </div>
+</div>
+
+<script>
+// Show desktop frame on wide screens
+if (window.innerWidth >= 800) document.getElementById('desktopFrame').style.display = 'block';
+
+// Animate progress bar
+setTimeout(() => {
+  document.querySelector('.challenge-progress-fill').style.width = '45%';
+}, 300);
+
+// Nav interaction
+document.querySelectorAll('.nav-item').forEach(item => {
+  item.addEventListener('click', () => {
+    document.querySelectorAll('.nav-item').forEach(i => { i.classList.remove('active'); i.querySelector('.nav-dot')?.remove(); });
+    item.classList.add('active');
+    const dot = document.createElement('div');
+    dot.className = 'nav-dot';
+    item.appendChild(dot);
+  });
+});
+
+// Reaction interaction
+document.querySelectorAll('.feed-reaction').forEach(r => {
+  r.addEventListener('click', () => {
+    r.classList.toggle('active');
+    const count = r.querySelector('.feed-reaction-count');
+    if (count) {
+      const val = parseInt(count.textContent) || 0;
+      count.textContent = r.classList.contains('active') ? val + 1 : Math.max(0, val - 1);
+    } else if (r.classList.contains('active')) {
+      const c = document.createElement('span');
+      c.className = 'feed-reaction-count';
+      c.textContent = '1';
+      r.appendChild(c);
+    }
+  });
+});
+</script>
+</body>
+</html>
