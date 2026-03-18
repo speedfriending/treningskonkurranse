@@ -126,36 +126,45 @@
   .btn-submit { width:100%; padding:12px; border:none; border-radius:var(--radius-sm); background:linear-gradient(135deg,var(--accent),#5B3FD4); color:#fff; font-family:inherit; font-size:13px; font-weight:700; cursor:pointer; transition:opacity .15s; }
   .btn-submit:hover { opacity:.9; }
 
-  /* HISTORIKK */
-  .hist-entry { display:flex; align-items:center; gap:8px; padding:8px 0; border-bottom:1px solid var(--border); font-size:12px; }
-  .hist-entry:last-child { border-bottom:none; }
-  .hist-dot { width:7px; height:7px; border-radius:50%; flex-shrink:0; }
-  .hist-name { font-weight:600; font-size:12px; }
-  .hist-detail { flex:1; font-size:11px; color:var(--text3); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-  .hist-pts { font-size:13px; font-weight:700; flex-shrink:0; }
-  .hist-btn { width:22px; height:22px; border-radius:5px; border:1px solid var(--border); background:transparent; color:var(--text3); font-size:11px; cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0; transition:all .15s; }
+  /* HISTORIKK — card style like Figma */
+  .hist-card { background:var(--bg3); border:1px solid var(--border); border-radius:var(--radius-sm); padding:12px 14px; margin-bottom:8px; position:relative; }
+  .hist-card-header { display:flex; align-items:center; gap:8px; margin-bottom:6px; }
+  .hist-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+  .hist-card-name { font-weight:600; font-size:13px; }
+  .hist-card-date { font-size:11px; color:var(--text3); }
+  .hist-card-acts { font-size:11px; color:var(--text2); margin-bottom:4px; }
+  .hist-card-pts { font-size:14px; font-weight:700; display:flex; align-items:center; gap:4px; }
+  .hist-card-pts-icon { font-size:12px; }
+  .hist-card-actions { position:absolute; top:12px; right:12px; display:flex; gap:6px; }
+  .hist-btn { width:24px; height:24px; border-radius:6px; border:1px solid var(--border); background:transparent; color:var(--text3); font-size:12px; cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0; transition:all .15s; }
   .hist-btn:hover { border-color:var(--accent); color:var(--accent); }
   .hist-btn.del:hover { border-color:var(--red); color:var(--red); }
 
-  /* POENG CONFIG */
-  .pts-row { display:flex; align-items:center; gap:8px; padding:6px 0; border-bottom:1px solid var(--border); }
-  .pts-row:last-child { border-bottom:none; }
-  .pts-name { flex:1; font-size:12px; font-weight:500; }
-  .pts-input { width:52px; padding:4px 6px; background:var(--bg3); border:1px solid var(--border); border-radius:5px; color:var(--accent2); font-family:inherit; font-size:12px; font-weight:700; text-align:center; outline:none; }
-  .pts-unit { font-size:10px; color:var(--text3); width:36px; }
-  .pts-del { width:20px; height:20px; border-radius:4px; border:1px solid var(--border); background:transparent; color:var(--text3); font-size:10px; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+  /* POENG CONFIG — card style like Figma */
+  .pts-card { background:var(--bg3); border:1px solid var(--border); border-radius:var(--radius-sm); padding:12px 14px; margin-bottom:8px; display:flex; align-items:center; gap:10px; }
+  .pts-card-info { flex:1; }
+  .pts-card-name { font-size:13px; font-weight:600; }
+  .pts-card-unit { font-size:10px; color:var(--text3); margin-top:1px; }
+  .pts-input { width:56px; padding:6px 8px; background:var(--bg4); border:1px solid var(--border); border-radius:6px; color:var(--accent2); font-family:inherit; font-size:13px; font-weight:700; text-align:center; outline:none; }
+  .pts-input:focus { border-color:var(--accent); }
+  .pts-p { font-size:12px; color:var(--text3); font-weight:500; }
+  .pts-del { width:24px; height:24px; border-radius:6px; border:1px solid var(--border); background:transparent; color:var(--text3); font-size:12px; cursor:pointer; display:flex; align-items:center; justify-content:center; }
   .pts-del:hover { border-color:var(--red); color:var(--red); }
-  .add-row { display:flex; gap:5px; margin-top:10px; }
-  .add-row input,.add-row select { flex:1; padding:6px 8px; background:var(--bg3); border:1px solid var(--border); border-radius:6px; color:var(--text); font-family:inherit; font-size:11px; outline:none; min-width:0; }
-  .add-row select { flex:0 0 50px; }
-  .add-btn { padding:6px 12px; border:none; border-radius:6px; background:var(--accent); color:#fff; font-family:inherit; font-size:11px; font-weight:700; cursor:pointer; flex-shrink:0; }
+  .add-section-title { font-size:12px; font-weight:600; color:var(--text2); margin-top:16px; margin-bottom:8px; }
+  .add-field { width:100%; padding:9px 12px; background:var(--bg3); border:1px solid var(--border); border-radius:8px; color:var(--text); font-family:inherit; font-size:13px; outline:none; margin-bottom:8px; }
+  .add-field:focus { border-color:var(--accent); }
+  .add-field-row { display:flex; gap:8px; margin-bottom:10px; }
+  .add-field-row input,.add-field-row select { flex:1; padding:9px 12px; background:var(--bg3); border:1px solid var(--border); border-radius:8px; color:var(--text); font-family:inherit; font-size:13px; outline:none; min-width:0; }
+  .add-field-row select { flex:0 0 auto; }
+  .btn-add-full { width:100%; padding:10px; border:none; border-radius:8px; background:linear-gradient(135deg,var(--accent),#5B3FD4); color:#fff; font-family:inherit; font-size:13px; font-weight:700; cursor:pointer; transition:opacity .15s; }
+  .btn-add-full:hover { opacity:.9; }
 
-  /* PLAYERS */
-  .player-row { display:flex; align-items:center; gap:8px; padding:6px 0; border-bottom:1px solid var(--border); }
-  .player-row:last-child { border-bottom:none; }
-  .player-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
-  .player-name { flex:1; font-size:13px; font-weight:500; }
-  .player-score { font-size:12px; font-weight:700; }
+  /* PLAYERS — card style like Figma */
+  .player-card { background:var(--bg3); border:1px solid var(--border); border-radius:var(--radius-sm); padding:12px 14px; margin-bottom:8px; display:flex; align-items:center; gap:12px; }
+  .player-color-block { width:40px; height:40px; border-radius:8px; flex-shrink:0; }
+  .player-name { flex:1; font-size:14px; font-weight:600; }
+  .player-del { width:24px; height:24px; border-radius:6px; border:1px solid var(--border); background:transparent; color:var(--text3); font-size:12px; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+  .player-del:hover { border-color:var(--red); color:var(--red); }
 
   /* CHART views */
   .chart-view { display:none; flex:1; flex-direction:column; min-height:0; }
@@ -305,11 +314,13 @@
         </div>
         <div class="side-section-body">
           <div id="actConfigList"></div>
-          <div class="add-row">
-            <input type="text" id="newActName" placeholder="Ny aktivitet...">
-            <select id="newActUnit"><option value="km">km</option><option value="min">min</option><option value="rep">rep</option><option value="stk">stk</option></select>
-            <button class="add-btn" onclick="addActivity()">+</button>
+          <div class="add-section-title">Ny aktivitet</div>
+          <input type="text" class="add-field" id="newActName" placeholder="Navn">
+          <div class="add-field-row">
+            <input type="text" id="newActUnit" placeholder="Enhet" value="km">
+            <input type="number" id="newActPts" placeholder="Poeng" value="1" min="0" step="0.1" style="flex:0 0 80px">
           </div>
+          <button class="btn-add-full" onclick="addActivity()">+ Legg til</button>
         </div>
       </div>
 
@@ -321,9 +332,11 @@
         </div>
         <div class="side-section-body">
           <div id="playerList"></div>
-          <div class="add-row">
-            <input type="text" id="newPlayerName" placeholder="Ny deltaker...">
-            <button class="add-btn" onclick="addPlayer()">+</button>
+          <div class="add-section-title">Ny deltaker</div>
+          <input type="text" class="add-field" id="newPlayerName" placeholder="Navn">
+          <div style="display:flex;gap:8px">
+            <div id="newPlayerColorPreview" style="width:40px;height:40px;border-radius:8px;flex-shrink:0" class="player-color-block"></div>
+            <button class="btn-add-full" onclick="addPlayer()">+ Legg til</button>
           </div>
         </div>
       </div>
@@ -468,36 +481,52 @@ window.editEntry=function(id){
 window.deleteEntry=function(id){db.ref('entries/'+id).remove();};
 
 // HISTORIKK
+function getEntryActivities(e){
+  return activities.filter(a=>(e[a.key]||0)>0).map(a=>a.label).join(', ')||'Økt';
+}
 function renderRecent(){
   const sorted=[...data].sort((a,b)=>b.date.localeCompare(a.date)).slice(0,20);
   document.getElementById('histCount').textContent=data.length;
   document.getElementById('recentLog').innerHTML=sorted.map(e=>{
     const p=Math.round(pts(e)*10)/10,pi=pIdx(e.p),c=pal(pi>=0?pi:0).color;
-    return`<div class="hist-entry"><div class="hist-dot" style="background:${c}"></div><div class="hist-name" style="color:${c}">${pName(e.p)}</div><div class="hist-detail">${fmtDateShort(e.date)} · ${e.name||'Økt'}</div><div class="hist-pts" style="color:${c}">${p}p</div><button class="hist-btn" onclick="editEntry('${e.id}')">✎</button><button class="hist-btn del" onclick="deleteEntry('${e.id}')">✕</button></div>`;
+    return`<div class="hist-card">
+      <div class="hist-card-actions"><button class="hist-btn" onclick="editEntry('${e.id}')">✎</button><button class="hist-btn del" onclick="deleteEntry('${e.id}')">🗑</button></div>
+      <div class="hist-card-header"><div class="hist-dot" style="background:${c}"></div><div class="hist-card-name" style="color:${c}">${pName(e.p)}</div></div>
+      <div class="hist-card-date">${fmtDateShort(e.date)}</div>
+      <div class="hist-card-acts">${getEntryActivities(e)}</div>
+      <div class="hist-card-pts" style="color:${c}"><span class="hist-card-pts-icon">✦</span> ${p} p</div>
+    </div>`;
   }).join('');
 }
 
 // ACT CONFIG
 function renderActConfig(){
   document.getElementById('actConfigList').innerHTML=activities.map((a,i)=>
-    `<div class="pts-row"><div class="pts-name">${a.label}</div><input class="pts-input" type="number" value="${a.pts}" step="0.1" min="0" onchange="updateActPts(${i},this.value)"><div class="pts-unit">p/${a.unit}</div>${activities.length>3?`<button class="pts-del" onclick="removeActivity(${i})">✕</button>`:''}</div>`
+    `<div class="pts-card">
+      <div class="pts-card-info"><div class="pts-card-name">${a.label}</div><div class="pts-card-unit">${a.unit}</div></div>
+      <input class="pts-input" type="number" value="${a.pts}" step="0.1" min="0" onchange="updateActPts(${i},this.value)">
+      <span class="pts-p">p</span>
+      ${activities.length>3?`<button class="pts-del" onclick="removeActivity(${i})">🗑</button>`:''}
+    </div>`
   ).join('');
 }
 window.updateActPts=function(i,val){activities[i].pts=parseFloat(val)||0;saveActivities(activities);};
 window.removeActivity=function(i){if(activities.length<=3)return;activities.splice(i,1);saveActivities(activities);};
 window.addActivity=function(){
-  const nameEl=document.getElementById('newActName'),unitEl=document.getElementById('newActUnit');
+  const nameEl=document.getElementById('newActName'),unitEl=document.getElementById('newActUnit'),ptsEl=document.getElementById('newActPts');
   const label=nameEl.value.trim();if(!label)return;
-  activities.push({key:label.toLowerCase().replace(/[^a-z0-9]/g,'')+'_'+Date.now().toString(36),label,unit:unitEl.value,pts:1});
-  saveActivities(activities);nameEl.value='';
+  activities.push({key:label.toLowerCase().replace(/[^a-z0-9]/g,'')+'_'+Date.now().toString(36),label,unit:unitEl.value,pts:parseFloat(ptsEl.value)||1});
+  saveActivities(activities);nameEl.value='';ptsEl.value='1';
 };
 
 // PLAYERS
 function renderPlayerList(){
   document.getElementById('playerList').innerHTML=players.map((p,i)=>{
-    const total=Math.round(data.filter(e=>e.p===p.id).reduce((a,e)=>a+pts(e),0));
-    return`<div class="player-row"><div class="player-dot" style="background:${pal(i).color}"></div><div class="player-name">${p.name}</div><div class="player-score" style="color:${pal(i).color}">${total}p</div>${players.length>2?`<button class="pts-del" onclick="removePlayer('${p.id}')">✕</button>`:''}</div>`;
+    return`<div class="player-card"><div class="player-color-block" style="background:${pal(i).color}"></div><div class="player-name">${p.name}</div>${players.length>2?`<button class="player-del" onclick="removePlayer('${p.id}')">🗑</button>`:''}</div>`;
   }).join('');
+  // Update new player color preview
+  const preview=document.getElementById('newPlayerColorPreview');
+  if(preview) preview.style.background=pal(players.length).color;
 }
 window.addPlayer=function(){const input=document.getElementById('newPlayerName'),name=input.value.trim();if(!name)return;players.push({id:'p'+Date.now().toString(36),name});savePlayers(players);input.value='';};
 window.removePlayer=function(id){if(players.length<=2)return;players=players.filter(p=>p.id!==id);savePlayers(players);data.filter(e=>e.p===id).forEach(e=>db.ref('entries/'+e.id).remove());};
