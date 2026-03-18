@@ -283,7 +283,7 @@
 
       <!-- LOGG ØKT -->
       <div class="side-section">
-        <div class="side-section-header" onclick="toggleSection(this)">
+        <div class="side-section-header" data-toggle="section">
           <div class="side-section-title"><span class="side-section-icon">➕</span> <span id="formTitle">Logg økt</span></div>
           <span class="side-section-toggle open">▾</span>
         </div>
@@ -298,22 +298,22 @@
 
       <!-- HISTORIKK -->
       <div class="side-section">
-        <div class="side-section-header" onclick="toggleSection(this)">
+        <div class="side-section-header" data-toggle="section">
           <div class="side-section-title"><span class="side-section-icon">📋</span> Historikk <span class="side-section-badge" id="histCount">0</span></div>
-          <span class="side-section-toggle">▾</span>
+          <span class="side-section-toggle open">▾</span>
         </div>
-        <div class="side-section-body" id="histSection">
+        <div class="side-section-body open" id="histSection">
           <div id="recentLog"></div>
         </div>
       </div>
 
       <!-- POENG -->
       <div class="side-section">
-        <div class="side-section-header" onclick="toggleSection(this)">
+        <div class="side-section-header" data-toggle="section">
           <div class="side-section-title"><span class="side-section-icon">⚙️</span> Poengsystem</div>
-          <span class="side-section-toggle">▾</span>
+          <span class="side-section-toggle open">▾</span>
         </div>
-        <div class="side-section-body">
+        <div class="side-section-body open">
           <div id="actConfigList"></div>
           <div class="add-section-title">Ny aktivitet</div>
           <input type="text" class="add-field" id="newActName" placeholder="Navn">
@@ -327,11 +327,11 @@
 
       <!-- DELTAKERE -->
       <div class="side-section">
-        <div class="side-section-header" onclick="toggleSection(this)">
+        <div class="side-section-header" data-toggle="section">
           <div class="side-section-title"><span class="side-section-icon">👥</span> Deltakere</div>
-          <span class="side-section-toggle">▾</span>
+          <span class="side-section-toggle open">▾</span>
         </div>
-        <div class="side-section-body">
+        <div class="side-section-body open">
           <div id="playerList"></div>
           <div class="add-section-title">Ny deltaker</div>
           <input type="text" class="add-field" id="newPlayerName" placeholder="Navn">
@@ -348,14 +348,16 @@
 </div>
 
 <script>
-// SECTION TOGGLE (defined first so it always works)
-window.toggleSection=function(header){
+// SECTION TOGGLE
+document.addEventListener('click',function(e){
+  const header=e.target.closest('[data-toggle="section"]');
+  if(!header)return;
   const body=header.nextElementSibling;
   if(!body)return;
   const toggle=header.querySelector('.side-section-toggle');
   body.classList.toggle('open');
   if(toggle)toggle.classList.toggle('open');
-};
+});
 
 // --- FIREBASE ---
 firebase.initializeApp({
