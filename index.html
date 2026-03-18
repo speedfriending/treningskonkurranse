@@ -433,7 +433,7 @@ function renderLeague(){
   document.getElementById('leagueTable').innerHTML=totals.map((t,rank)=>{
     const c=pal(t.idx).color;
     const avg=t.count?Math.round(t.total/t.count*10)/10:0;
-    return`<div class="liga-card${rank===0?' first'}">
+    return`<div class="liga-card${rank===0?' first':''}">
       <div class="liga-rank r${rank+1}">${rank+1}</div>
       <div class="liga-stripe" style="background:${c}"></div>
       <div class="liga-info">
