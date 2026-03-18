@@ -41,7 +41,7 @@
   body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); font-size:13px; }
 
   /* LAYOUT */
-  .dashboard { display:grid; grid-template-columns:1fr 340px; grid-template-rows:auto auto 1fr; height:100vh; max-width:100vw; overflow:hidden; }
+  .dashboard { display:grid; grid-template-columns:1fr 340px; grid-template-rows:auto auto 1fr; height:100vh; height:100dvh; max-width:100vw; overflow:hidden; position:relative; }
 
   /* HEADER */
   .header { grid-column:1/-1; display:flex; align-items:center; padding:14px 24px; gap:16px; border-bottom:1px solid var(--border); }
@@ -59,14 +59,14 @@
   .header-stat-val { font-size:16px; font-weight:700; }
 
   /* TABS ROW */
-  .tabs-row { grid-column:1/2; padding:14px 24px; display:flex; gap:6px; }
+  .tabs-row { grid-column:1/2; grid-row:2/3; padding:14px 24px; display:flex; gap:6px; }
   .tab-pill { display:flex; align-items:center; gap:6px; padding:8px 18px; border-radius:24px; border:1px solid var(--border); background:var(--bg2); color:var(--text2); font-size:12px; font-weight:600; cursor:pointer; transition:all .2s; }
   .tab-pill:hover { border-color:rgba(255,255,255,.12); }
   .tab-pill.active { background:var(--orange); border-color:var(--orange); color:#fff; }
   .tab-pill .tab-icon { font-size:13px; }
 
   /* LEFT: CHART */
-  .left-col { padding:0 24px 20px; overflow:hidden; display:flex; flex-direction:column; min-width:0; }
+  .left-col { grid-column:1/2; grid-row:3/4; padding:0 24px 20px; overflow:hidden; display:flex; flex-direction:column; min-width:0; }
   .chart-container { flex:1; background:var(--bg2); border:1px solid var(--border); border-radius:var(--radius); padding:20px; display:flex; flex-direction:column; min-height:0; }
   .chart-wrap { flex:1; position:relative; min-height:0; }
   .chart-legend { display:flex; justify-content:center; gap:20px; padding-top:12px; font-size:11px; color:var(--text2); }
@@ -74,7 +74,7 @@
   .chart-leg-dot { width:8px; height:8px; border-radius:50%; }
 
   /* RIGHT SIDEBAR */
-  .right-col { grid-row:2/4; border-left:1px solid var(--border); display:flex; flex-direction:column; overflow:hidden; }
+  .right-col { grid-column:2/3; grid-row:2/4; border-left:1px solid var(--border); display:flex; flex-direction:column; overflow:hidden; }
   .right-scroll { flex:1; overflow-y:auto; overflow-x:hidden; }
   .right-scroll::-webkit-scrollbar { width:4px; }
   .right-scroll::-webkit-scrollbar-thumb { background:var(--bg4); border-radius:2px; }
@@ -564,15 +564,8 @@ db.ref('activities').on('value',snap=>{const v=snap.val();if(v)activities=Array.
 
 // INIT
 document.getElementById('fd').value=new Date().toISOString().slice(0,10);
-db.ref('entries').once('value').then(snap=>{
-  if(!snap.exists()){
-    // Seed
-    const BASE=[{id:'b1',p:'p1',date:'2026-03-03',name:'Morgenløp',run:8},{id:'b2',p:'p1',date:'2026-03-04',name:'Styrke',push:80,pull:20,sit:60},{id:'b3',p:'p1',date:'2026-03-05',name:'Sykkeltur',bike:45},{id:'b4',p:'p1',date:'2026-03-06',name:'Svømming',swim:2},{id:'b5',p:'p1',date:'2026-03-07',name:'Intervaller',run:12},{id:'b6',p:'p1',date:'2026-03-08',name:'Vekttrening',push:100,pull:30,weight:45},{id:'b7',p:'p1',date:'2026-03-09',name:'Langtur',run:20},{id:'b8',p:'p1',date:'2026-03-10',name:'Rolig løp',run:6},{id:'b9',p:'p1',date:'2026-03-11',name:'Styrke',push:90,pull:25,sit:80},{id:'b10',p:'p1',date:'2026-03-12',name:'Sykling hard',bike:60},{id:'b11',p:'p1',date:'2026-03-13',name:'Svømming',swim:3},{id:'b12',p:'p1',date:'2026-03-14',name:'Terskelintervall',run:14},{id:'b13',p:'p1',date:'2026-03-15',name:'Full styrke',push:120,pull:35,sit:100,weight:60},{id:'b14',p:'p1',date:'2026-03-16',name:'Søndagsløp',run:10},{id:'b15',p:'p2',date:'2026-03-03',name:'Morgenløp',run:5},{id:'b16',p:'p2',date:'2026-03-04',name:'Sykkeltur',bike:30},{id:'b17',p:'p2',date:'2026-03-05',name:'Styrke',push:60,pull:15,sit:50},{id:'b18',p:'p2',date:'2026-03-06',name:'Løp',run:10},{id:'b19',p:'p2',date:'2026-03-07',name:'Svømming',swim:1.5},{id:'b20',p:'p2',date:'2026-03-08',name:'Vekttrening',push:70,weight:60},{id:'b21',p:'p2',date:'2026-03-09',name:'Lang sykkel',bike:80},{id:'b22',p:'p2',date:'2026-03-10',name:'Rolig løp',run:7},{id:'b23',p:'p2',date:'2026-03-11',name:'Styrke',push:80,pull:20,sit:70},{id:'b24',p:'p2',date:'2026-03-12',name:'Intervaller',run:11},{id:'b25',p:'p2',date:'2026-03-13',name:'Svømming',swim:2},{id:'b26',p:'p2',date:'2026-03-14',name:'Sykling',bike:50},{id:'b27',p:'p2',date:'2026-03-15',name:'Langtur',run:18},{id:'b28',p:'p2',date:'2026-03-16',name:'Styrke',push:100,pull:30,sit:80,weight:45}];
-    const u={};BASE.forEach(e=>{u[e.id]=e;});
-    db.ref('entries').set(u);
-    db.ref('players').set(DEFAULT_PLAYERS);
-    db.ref('activities').set(DEFAULT_ACTIVITIES);
-  }
+// Wait for first data load, then initialize
+db.ref('entries').once('value').then(()=>{
   initialized=true;
   buildForm();renderActPills();renderAll();
 });
