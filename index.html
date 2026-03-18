@@ -348,6 +348,15 @@
 </div>
 
 <script>
+// SECTION TOGGLE (defined first so it always works)
+window.toggleSection=function(header){
+  const body=header.nextElementSibling;
+  if(!body)return;
+  const toggle=header.querySelector('.side-section-toggle');
+  body.classList.toggle('open');
+  if(toggle)toggle.classList.toggle('open');
+};
+
 // --- FIREBASE ---
 firebase.initializeApp({
   apiKey:"AIzaSyDN-lWEsjUYVlN6jO9fEeaxKzgLo2PI5Po",
@@ -532,14 +541,6 @@ function renderPlayerList(){
 window.addPlayer=function(){const input=document.getElementById('newPlayerName'),name=input.value.trim();if(!name)return;players.push({id:'p'+Date.now().toString(36),name});savePlayers(players);input.value='';};
 window.removePlayer=function(id){if(players.length<=2)return;players=players.filter(p=>p.id!==id);savePlayers(players);data.filter(e=>e.p===id).forEach(e=>db.ref('entries/'+e.id).remove());};
 
-// SECTION TOGGLE
-window.toggleSection=function(header){
-  const body=header.nextElementSibling;
-  const toggle=header.querySelector('.side-section-toggle');
-  body.classList.toggle('open');
-  toggle.classList.toggle('open');
-};
-
 // TABS
 window.goChart=function(id,btn){
   document.querySelectorAll('.chart-view').forEach(v=>v.classList.remove('active'));
@@ -564,12 +565,12 @@ db.ref('players').on('value',snap=>{const v=snap.val();if(v)players=Array.isArra
 db.ref('activities').on('value',snap=>{const v=snap.val();if(v)activities=Array.isArray(v)?v:Object.values(v);if(initialized){buildForm();renderAll();}});
 
 // INIT
-document.getElementById('fd').value=new Date().toISOString().slice(0,10);
+try { document.getElementById('fd').value=new Date().toISOString().slice(0,10); } catch(e){}
 // Wait for first data load, then initialize
 db.ref('entries').once('value').then(()=>{
   initialized=true;
-  buildForm();renderActPills();renderAll();
-});
+  try { buildForm();renderActPills();renderAll(); } catch(e){ console.error('Init error:',e); }
+}).catch(e=>{ console.error('Firebase load error:',e); initialized=true; try{buildForm();renderActPills();renderAll();}catch(e2){} });
 </script>
 </body>
 </html>
